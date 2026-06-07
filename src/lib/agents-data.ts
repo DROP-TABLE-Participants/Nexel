@@ -27,24 +27,24 @@ export const FULL_CONTEXTS = [
 
 // How much of each context the agent actually uses (for active ones)
 export const AGENT_CONTEXT_USAGE: Record<string, Record<string, number>> = {
-  sales: {
-    Communication: 62,
-    Knowledge:     44,
-    Customers:     88,
-    Projects:      35,
-    Finance:       71,
-  },
-  support: {
+  invoice_ops: {
+    Communication: 52,
     Knowledge:     80,
-    Communication: 55,
-    Customers:     70,
+    Customers:     76,
     Projects:      28,
+    Finance:       92,
   },
-  dev: {
-    Development:   90,
-    Knowledge:     60,
-    Projects:      75,
-    Communication: 30,
+  mcp_reporter: {
+    Knowledge:     68,
+    Customers:     62,
+    Finance:       86,
+    Communication: 24,
+  },
+  collections: {
+    Communication: 70,
+    Knowledge:     42,
+    Customers:     80,
+    Finance:       74,
   },
 };
 
@@ -91,78 +91,74 @@ export const CONTEXT_UNITS: ContextUnit[] = [
 ];
 
 export const AGENT_ACTIVE_UNITS: Record<string, string[]> = {
-  sales: [
-    "emails", "slack-msgs", "meeting-notes",
-    "documents", "product-specs",
-    "crm-contacts", "cust-feedback",
-    "tasks",
-    "invoices", "contracts", "rev-reports",
-  ],
-  support: [
+  invoice_ops: [
     "emails", "slack-msgs",
     "documents", "wiki-pages", "runbooks",
-    "cust-feedback", "support-tickets",
-    "tasks", "sprints",
+    "crm-contacts", "cust-feedback",
+    "tasks",
+    "invoices", "expenses", "contracts", "rev-reports",
   ],
-  dev: [
-    "slack-msgs", "discord-chats",
-    "documents", "wiki-pages", "product-specs", "runbooks",
-    "code-repos", "pull-requests", "bug-reports", "ci-logs",
-    "tasks", "sprints", "roadmaps",
+  mcp_reporter: [
+    "documents", "wiki-pages", "runbooks",
+    "crm-contacts",
+    "invoices", "rev-reports",
+  ],
+  collections: [
+    "emails", "meeting-notes",
+    "documents", "runbooks",
+    "crm-contacts", "cust-feedback",
+    "invoices", "contracts",
   ],
 };
 
 export const ALL_SOURCES = [
-  { id: "slack",   name: "Slack" },
   { id: "notion",  name: "Notion" },
   { id: "gdrive",  name: "Google Drive" },
-  { id: "jira",    name: "Jira" },
-  { id: "discord", name: "Discord" },
-  { id: "github",  name: "GitHub" },
+  { id: "teftero", name: "Teftero ERP" },
   { id: "gmail",   name: "Gmail" },
 ];
 
 export const AGENTS: Agent[] = [
   {
-    id: "sales",
-    name: "Sales Assistant",
-    model: "GPT-4o",
+    id: "invoice_ops",
+    name: "Invoice Operations",
+    model: "GPT-5.2",
     connection: "MCP",
     status: "healthy",
-    tokens: "41.2M",
-    cost: "$1,892",
-    saved: "$2,105",
-    dataUnits: "12,400",
+    tokens: "12.8M",
+    cost: "$384",
+    saved: "$912",
+    dataUnits: "4,180",
     iconColor: "#000000",
-    activeContexts: ["Customers", "Communication", "Knowledge", "Projects", "Finance"],
-    sourcesAccess: ["slack", "notion", "gdrive", "jira"],
+    activeContexts: ["Finance", "Customers", "Knowledge", "Communication"],
+    sourcesAccess: ["notion", "gdrive", "teftero", "gmail"],
   },
   {
-    id: "support",
-    name: "Support Bot",
-    model: "Claude Sonnet",
-    connection: "Connector",
-    status: "healthy",
-    tokens: "38.7M",
-    cost: "$1,780",
-    saved: "$1,943",
-    dataUnits: "11,200",
-    iconColor: "#d97706",
-    activeContexts: ["Knowledge", "Communication", "Customers", "Projects"],
-    sourcesAccess: ["slack", "notion", "jira", "discord"],
-  },
-  {
-    id: "dev",
-    name: "Dev Assistant",
-    model: "Claude Opus",
+    id: "mcp_reporter",
+    name: "MCP Report Client",
+    model: "Claude Desktop",
     connection: "MCP",
     status: "healthy",
-    tokens: "18.6M",
-    cost: "$749",
-    saved: "$773",
-    dataUnits: "5,800",
+    tokens: "6.4M",
+    cost: "$128",
+    saved: "$476",
+    dataUnits: "1,620",
     iconColor: "#d97706",
-    activeContexts: ["Development", "Knowledge", "Projects", "Communication"],
-    sourcesAccess: ["github", "notion", "jira", "slack"],
+    activeContexts: ["Finance", "Knowledge", "Customers"],
+    sourcesAccess: ["notion", "gdrive", "teftero"],
+  },
+  {
+    id: "collections",
+    name: "Collections Assistant",
+    model: "GPT-5.2",
+    connection: "Connector",
+    status: "warning",
+    tokens: "9.1M",
+    cost: "$246",
+    saved: "$608",
+    dataUnits: "2,740",
+    iconColor: "#d97706",
+    activeContexts: ["Finance", "Customers", "Communication", "Knowledge"],
+    sourcesAccess: ["notion", "gdrive", "gmail"],
   },
 ];

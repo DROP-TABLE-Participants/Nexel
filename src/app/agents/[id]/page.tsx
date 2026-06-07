@@ -2,9 +2,16 @@
 
 import { use, useState } from "react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, useSearchParams } from "next/navigation";
 import { ArrowLeft, Zap, DollarSign, Database, TrendingDown, ChevronDown } from "lucide-react";
-import { SiOpenai, SiAnthropic, SiSlack, SiNotion, SiGoogledrive, SiJira, SiDiscord, SiGithub, SiGmail } from "react-icons/si";
+import {
+  SiAirtable,
+  SiAnthropic,
+  SiGmail,
+  SiGoogledrive,
+  SiNotion,
+  SiOpenai,
+} from "react-icons/si";
 import { type IconType } from "react-icons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,8 +25,26 @@ import {
   CONTEXT_UNITS,
   AGENT_ACTIVE_UNITS,
   ALL_SOURCES,
-  type ContextUnit,
 } from "@/lib/agents-data";
+import { AgentDemo } from "@/components/AgentDemo";
+
+const INVOICE_SCENARIOS = [
+  {
+    id: "invoice_send_email",
+    title: "Send email for unpaid invoice",
+    task: "Draft a customer-safe email to Acme Labs about unpaid invoice INV-2026-0503.",
+  },
+  {
+    id: "invoice_mark_paid",
+    title: "Close invoice",
+    task: "Mark Laguna Services invoice INV-2026-0419 as paid in Notion and summarize the closure.",
+  },
+  {
+    id: "invoice_unpaid_may_report",
+    title: "Unpaid May invoice rows",
+    task: "Return unpaid May 2026 invoice rows for an MCP client to turn into Excel. Do not generate an Excel file.",
+  },
+] as const;
 
 const statusConfig = {
   healthy: { label: "Active",   variant: "success"     as const, dot: "bg-emerald-500" },
@@ -28,19 +53,16 @@ const statusConfig = {
 };
 
 const SOURCE_ICONS: Record<string, { Icon: IconType; color: string }> = {
-  slack:   { Icon: SiSlack,       color: "#4A154B" },
   notion:  { Icon: SiNotion,      color: "#000000" },
   gdrive:  { Icon: SiGoogledrive, color: "#1FA463" },
-  jira:    { Icon: SiJira,        color: "#0052CC" },
-  discord: { Icon: SiDiscord,     color: "#5865F2" },
-  github:  { Icon: SiGithub,      color: "#24292F" },
+  teftero: { Icon: SiAirtable,    color: "#6338fe" },
   gmail:   { Icon: SiGmail,       color: "#EA4335" },
 };
 
 const ICONS: Record<string, { Icon: React.ElementType; color: string }> = {
-  sales:   { Icon: SiOpenai,    color: "#000000" },
-  support: { Icon: SiAnthropic, color: "#d97706" },
-  dev:     { Icon: SiAnthropic, color: "#d97706" },
+  invoice_ops:  { Icon: SiOpenai,    color: "#000000" },
+  mcp_reporter: { Icon: SiAnthropic, color: "#d97706" },
+  collections:  { Icon: SiNotion,    color: "#6338fe" },
 };
 
 function StatBox({ label, value, icon: Icon, accent }: { label: string; value: string; icon: React.ElementType; accent?: boolean }) {
@@ -116,11 +138,22 @@ export default function AgentDetailPage({ params }: { params: Promise<{ id: stri
   const [sourcePerms, setSourcePerms] = useState<Record<string, boolean>>(
     Object.fromEntries(ALL_SOURCES.map((s) => [s.id, agent.sourcesAccess.includes(s.id)]))
   );
+  const searchParams = useSearchParams();
+  const requestedScenario = searchParams.get("scenario");
+  const scenarioId = INVOICE_SCENARIOS.some((scenario) => scenario.id === requestedScenario)
+    ? requestedScenario
+    : INVOICE_SCENARIOS[0]?.id ?? "invoice_send_email";
+  const defaultScenario = INVOICE_SCENARIOS.find((scenario) => scenario.id === scenarioId);
+  const initialCompare = searchParams.get("compare") === "1" || searchParams.get("compare") === "true";
 
   function toggleUnit(unitId: string) {
     setActiveUnits((prev) => {
       const next = new Set(prev);
-      next.has(unitId) ? next.delete(unitId) : next.add(unitId);
+      if (next.has(unitId)) {
+        next.delete(unitId);
+      } else {
+        next.add(unitId);
+      }
       return next;
     });
   }
@@ -184,6 +217,16 @@ export default function AgentDetailPage({ params }: { params: Promise<{ id: stri
         <StatBox label="Data units"      value={agent.dataUnits} icon={Database}   />
         <StatBox label="Money saved"     value={agent.saved}     icon={TrendingDown} accent />
       </div>
+
+      {id === "invoice_ops" ? (
+        <AgentDemo
+          agentRole="invoice_ops"
+          displayName="Invoice Operations"
+          scenarioId={scenarioId ?? "invoice_send_email"}
+          defaultTask={defaultScenario?.task ?? "Draft a customer-safe email to Acme Labs about unpaid invoice INV-2026-0503."}
+          initialCompare={initialCompare}
+        />
+      ) : null}
 
       {/* Cost comparison */}
       <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 space-y-3">

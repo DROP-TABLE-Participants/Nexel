@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { Plus, Search, RefreshCw, Settings2, Copy, Eye, EyeOff, RotateCcw } from "lucide-react";
 import {
-  SiSlack, SiNotion, SiGoogledrive, SiJira, SiDiscord, SiGithub,
+  SiAirtable, SiNotion, SiGoogledrive,
   SiLinear, SiHubspot, SiSalesforce, SiConfluence, SiGmail,
-  SiAsana, SiZendesk, SiIntercom, SiDropbox, SiTrello, SiAirtable, SiFigma,
+  SiAsana, SiZendesk, SiIntercom, SiDropbox, SiTrello, SiFigma,
 } from "react-icons/si";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -37,90 +37,51 @@ interface Connector {
 
 const connectors: Connector[] = [
   {
-    id: "slack", name: "Slack", category: "Communication", status: "healthy",
-    lastSync: "2 min ago", records: "142,830 messages", Icon: SiSlack, color: "#4A154B",
-    apiKey: "sk-slack-a1b2c3d4e5f6", accessToken: "xoxb-7890-abcdef-ghijkl",
-    authType: "OAuth 2.0", syncFrequency: "Every 5 min", nextSync: "in 3 min",
-    syncHistory: [
-      { time: "Jun 7, 10:42 AM", records: "1,243 new messages" },
-      { time: "Jun 7, 10:37 AM", records: "892 new messages" },
-      { time: "Jun 7, 10:32 AM", records: "2,104 new messages" },
-      { time: "Jun 7, 10:27 AM", records: "567 new messages" },
-      { time: "Jun 7, 10:22 AM", records: "1,890 new messages" },
-      { time: "Jun 7, 10:17 AM", records: "334 new messages" },
-      { time: "Jun 7, 10:12 AM", records: "721 new messages" },
-    ],
-  },
-  {
     id: "notion", name: "Notion", category: "Knowledge", status: "healthy",
-    lastSync: "5 min ago", records: "3,241 pages", Icon: SiNotion, color: "#000000",
-    apiKey: "secret_notion_k9l8m7n6", accessToken: "ntn-o5p4q3r2s1t0",
+    lastSync: "5 min ago", records: "6 invoice pages", Icon: SiNotion, color: "#000000",
+    apiKey: "NOTION_API_KEY", accessToken: "NOTION_INVOICE_DATABASE_ID",
     authType: "API Key", syncFrequency: "Every 10 min", nextSync: "in 5 min",
     syncHistory: [
-      { time: "Jun 7, 10:40 AM", records: "48 updated pages" },
-      { time: "Jun 7, 10:30 AM", records: "12 updated pages" },
-      { time: "Jun 7, 10:20 AM", records: "31 updated pages" },
-      { time: "Jun 7, 10:10 AM", records: "7 updated pages" },
+      { time: "Jun 7, 10:40 AM", records: "3 unpaid May invoices" },
+      { time: "Jun 7, 10:30 AM", records: "1 invoice status update" },
+      { time: "Jun 7, 10:20 AM", records: "6 customer rows indexed" },
+      { time: "Jun 7, 10:10 AM", records: "Mock fallback active" },
     ],
   },
   {
     id: "gdrive", name: "Google Drive", category: "Storage", status: "healthy",
-    lastSync: "12 min ago", records: "8,902 files", Icon: SiGoogledrive, color: "#1FA463",
-    apiKey: "AIza-gdrive-u9v8w7x6y5z4", accessToken: "ya29.gdrive-access-token",
+    lastSync: "12 min ago", records: "4 invoice SOP docs", Icon: SiGoogledrive, color: "#1FA463",
+    apiKey: "GOOGLE_DRIVE_FOLDER_ID", accessToken: "GOOGLE_DRIVE_ACCESS_TOKEN",
     authType: "OAuth 2.0", syncFrequency: "Every 15 min", nextSync: "in 3 min",
     syncHistory: [
-      { time: "Jun 7, 10:33 AM", records: "204 new files" },
-      { time: "Jun 7, 10:18 AM", records: "89 new files" },
-      { time: "Jun 7, 10:03 AM", records: "341 new files" },
-      { time: "Jun 7, 9:48 AM", records: "56 new files" },
+      { time: "Jun 7, 10:33 AM", records: "Email guidance indexed" },
+      { time: "Jun 7, 10:18 AM", records: "Closure SOP indexed" },
+      { time: "Jun 7, 10:03 AM", records: "Report rules indexed" },
+      { time: "Jun 7, 9:48 AM", records: "Restricted note blocked" },
     ],
   },
   {
-    id: "jira", name: "Jira", category: "Project Management", status: "warning",
-    lastSync: "1 hr ago", records: "4,120 tickets", Icon: SiJira, color: "#0052CC",
-    apiKey: "jira-api-a2b3c4d5e6f7", accessToken: "jira-tok-g8h9i0j1k2l3",
-    authType: "API Token", syncFrequency: "Every 10 min", nextSync: "Retrying...",
+    id: "teftero", name: "Teftero ERP", category: "ERP", status: "healthy",
+    lastSync: "6 min ago", records: "6 invoice records", Icon: SiAirtable, color: "#6338fe",
+    apiKey: "TEFTERO_ERP_TENANT", accessToken: "TEFTERO_ERP_TOKEN",
+    authType: "Bearer token", syncFrequency: "Every 10 min", nextSync: "in 4 min",
     syncHistory: [
-      { time: "Jun 7, 9:45 AM", records: "Sync failed — timeout" },
-      { time: "Jun 7, 9:35 AM", records: "34 updated tickets" },
-      { time: "Jun 7, 9:25 AM", records: "12 updated tickets" },
-      { time: "Jun 7, 9:15 AM", records: "78 updated tickets" },
-    ],
-  },
-  {
-    id: "discord", name: "Discord", category: "Communication", status: "healthy",
-    lastSync: "8 min ago", records: "89,410 messages", Icon: SiDiscord, color: "#5865F2",
-    apiKey: "discord-bot-m4n5o6p7q8r9", accessToken: "discord-tok-s0t1u2v3w4x5",
-    authType: "Bot Token", syncFrequency: "Every 5 min", nextSync: "in 2 min",
-    syncHistory: [
-      { time: "Jun 7, 10:37 AM", records: "3,891 new messages" },
-      { time: "Jun 7, 10:32 AM", records: "2,104 new messages" },
-      { time: "Jun 7, 10:27 AM", records: "4,560 new messages" },
-      { time: "Jun 7, 10:22 AM", records: "1,230 new messages" },
-    ],
-  },
-  {
-    id: "github", name: "GitHub", category: "Development", status: "healthy",
-    lastSync: "3 min ago", records: "12,004 events", Icon: SiGithub, color: "#24292F",
-    apiKey: "ghp_y6z7a8b9c0d1e2f3g4h5", accessToken: "ghs-i6j7k8l9m0n1o2p3",
-    authType: "Personal Access Token", syncFrequency: "Every 5 min", nextSync: "in 2 min",
-    syncHistory: [
-      { time: "Jun 7, 10:42 AM", records: "87 new events" },
-      { time: "Jun 7, 10:37 AM", records: "34 new events" },
-      { time: "Jun 7, 10:32 AM", records: "112 new events" },
-      { time: "Jun 7, 10:27 AM", records: "45 new events" },
+      { time: "Jun 7, 10:42 AM", records: "3 unpaid May statuses" },
+      { time: "Jun 7, 10:37 AM", records: "1 payment received event" },
+      { time: "Jun 7, 10:32 AM", records: "6 customer accounts indexed" },
+      { time: "Jun 7, 10:27 AM", records: "Mock fallback active" },
     ],
   },
   {
     id: "gmail", name: "Gmail", category: "Communication", status: "healthy",
-    lastSync: "4 min ago", records: "28,340 emails", Icon: SiGmail, color: "#EA4335",
-    apiKey: "AIza-gmail-q1w2e3r4t5y6", accessToken: "ya29.gmail-access-token",
+    lastSync: "4 min ago", records: "Mock draft outbox", Icon: SiGmail, color: "#EA4335",
+    apiKey: "GMAIL_USER_ID", accessToken: "GMAIL_ACCESS_TOKEN",
     authType: "OAuth 2.0", syncFrequency: "Every 5 min", nextSync: "in 1 min",
     syncHistory: [
-      { time: "Jun 7, 10:41 AM", records: "312 new emails" },
-      { time: "Jun 7, 10:36 AM", records: "187 new emails" },
-      { time: "Jun 7, 10:31 AM", records: "443 new emails" },
-      { time: "Jun 7, 10:26 AM", records: "98 new emails" },
+      { time: "Jun 7, 10:41 AM", records: "1 invoice draft created" },
+      { time: "Jun 7, 10:36 AM", records: "Mock draft fallback active" },
+      { time: "Jun 7, 10:31 AM", records: "Real drafts disabled" },
+      { time: "Jun 7, 10:26 AM", records: "No real email sent" },
     ],
   },
 ];

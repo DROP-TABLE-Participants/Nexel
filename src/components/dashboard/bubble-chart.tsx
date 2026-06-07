@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 interface Context {
   name: string;
@@ -66,8 +66,6 @@ function packCircles(data: Context[]): PlacedCircle[] {
   }
 
   // Center the pack in the viewBox
-  const xs = circles.map((c) => c.x);
-  const ys = circles.map((c) => c.y);
   const minX = Math.min(...circles.map((c) => c.x - c.r));
   const maxX = Math.max(...circles.map((c) => c.x + c.r));
   const minY = Math.min(...circles.map((c) => c.y - c.r));

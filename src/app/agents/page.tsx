@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { SiOpenai, SiAnthropic } from "react-icons/si";
+import { SiAnthropic, SiNotion, SiOpenai } from "react-icons/si";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { AGENTS } from "@/lib/agents-data";
@@ -14,9 +14,9 @@ const statusConfig = {
 };
 
 const ICONS: Record<string, { Icon: IconType; color: string }> = {
-  sales:   { Icon: SiOpenai,    color: "#000000" },
-  support: { Icon: SiAnthropic, color: "#d97706" },
-  dev:     { Icon: SiAnthropic, color: "#d97706" },
+  invoice_ops:  { Icon: SiOpenai,    color: "#000000" },
+  mcp_reporter: { Icon: SiAnthropic, color: "#d97706" },
+  collections:  { Icon: SiNotion,    color: "#6338fe" },
 };
 
 function AgentIcon({ id, size = "md" }: { id: string; size?: "sm" | "md" }) {
@@ -32,11 +32,15 @@ function AgentIcon({ id, size = "md" }: { id: string; size?: "sm" | "md" }) {
 }
 
 export default function AgentsPage() {
+  const activeCount = AGENTS.filter((agent) => agent.status === "healthy").length;
+
   return (
     <div className="flex flex-col gap-8 p-8">
       <div>
         <h1 className="text-xl font-semibold tracking-tight text-[var(--foreground)]">Agents</h1>
-        <p className="mt-1 text-sm text-[var(--muted-foreground)]">{AGENTS.length} agents · all active</p>
+        <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+          {AGENTS.length} agents · {activeCount} active
+        </p>
       </div>
 
       <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] overflow-hidden">

@@ -11,6 +11,7 @@ const SheetTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title ref={ref} className={cn("sr-only", className)} {...props} />
 ));
+SheetTitle.displayName = "SheetTitle";
 
 const Sheet = DialogPrimitive.Root;
 const SheetTrigger = DialogPrimitive.Trigger;

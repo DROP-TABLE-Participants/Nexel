@@ -32,12 +32,10 @@ export const tokenUsageData = [
 ];
 
 export const connectorStatuses = [
-  { name: "Slack", status: "healthy" as const, lastSync: "2 min ago" },
   { name: "Notion", status: "healthy" as const, lastSync: "5 min ago" },
   { name: "Google Drive", status: "healthy" as const, lastSync: "12 min ago" },
-  { name: "Jira", status: "warning" as const, lastSync: "1 hr ago" },
-  { name: "Discord", status: "healthy" as const, lastSync: "8 min ago" },
-  { name: "GitHub", status: "healthy" as const, lastSync: "3 min ago" },
+  { name: "Teftero ERP", status: "healthy" as const, lastSync: "6 min ago" },
+  { name: "Gmail", status: "healthy" as const, lastSync: "4 min ago" },
 ];
 
 export interface ActivityItem {
@@ -57,22 +55,22 @@ export interface ActivityItem {
 
 export const recentActivity: ActivityItem[] = [
   {
-    id: 1, type: "agent_query", label: "Sales Assistant queried Customer context", time: "1 min ago", agent: "Sales Assistant",
+    id: 1, type: "agent_query", label: "Invoice Operations queried unpaid invoice context", time: "1 min ago", agent: "Invoice Operations",
     detail: { tokens: "124,300", tokensOptimized: "89,400", costSaved: "$0.09", duration: "1.2s", contexts: ["Customers", "Finance"] },
   },
-  { id: 2, type: "sync", label: "Slack synced 1,243 new messages", time: "2 min ago", agent: null },
+  { id: 2, type: "sync", label: "Teftero ERP synced invoice status records", time: "2 min ago", agent: null },
   {
-    id: 3, type: "agent_query", label: "Support Bot queried Tickets + Docs context", time: "4 min ago", agent: "Support Bot",
+    id: 3, type: "agent_query", label: "MCP Report Client queried May invoice rows", time: "4 min ago", agent: "MCP Report Client",
     detail: { tokens: "98,700", tokensOptimized: "61,200", costSaved: "$0.06", duration: "0.9s", contexts: ["Knowledge", "Projects"] },
   },
-  { id: 4, type: "sync", label: "Notion synced 48 updated pages", time: "8 min ago", agent: null },
+  { id: 4, type: "sync", label: "Notion synced invoice pages", time: "8 min ago", agent: null },
   {
-    id: 5, type: "agent_query", label: "Dev Assistant queried Code + Docs context", time: "11 min ago", agent: "Dev Assistant",
+    id: 5, type: "agent_query", label: "Collections Assistant queried email guidance", time: "11 min ago", agent: "Collections Assistant",
     detail: { tokens: "211,500", tokensOptimized: "143,800", costSaved: "$0.14", duration: "1.7s", contexts: ["Development", "Knowledge", "Projects"] },
   },
-  { id: 6, type: "warning", label: "Jira sync delayed — retrying", time: "1 hr ago", agent: null },
+  { id: 6, type: "warning", label: "Real Google Drive API disabled — using mock fallback", time: "1 hr ago", agent: null },
   {
-    id: 7, type: "agent_query", label: "Sales Assistant queried Invoices context", time: "1 hr ago", agent: "Sales Assistant",
+    id: 7, type: "agent_query", label: "Invoice Operations closed Laguna invoice", time: "1 hr ago", agent: "Invoice Operations",
     detail: { tokens: "87,200", tokensOptimized: "52,100", costSaved: "$0.05", duration: "0.8s", contexts: ["Finance", "Customers"] },
   },
 ];

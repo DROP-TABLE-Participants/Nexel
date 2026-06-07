@@ -10,6 +10,7 @@ import {
   Play,
   Table2,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import type { AgentRole, AgentRun, DemoMode, Scenario } from "@/lib/types";
 
 type CompareResult = {
@@ -75,40 +76,42 @@ function renderOutput(run: AgentRun) {
     : [];
 
   return (
-    <div className="space-y-4 text-sm text-slate-700">
-      <p className="text-base font-medium text-slate-950">{String(output.summary ?? output.issueClassification ?? "Generated output")}</p>
+    <div className="space-y-4 text-sm text-[var(--foreground)]">
+      <p className="text-base font-medium text-[var(--foreground)]">
+        {String(output.summary ?? output.issueClassification ?? "Generated output")}
+      </p>
       {emailDraft ? (
-        <div className="rounded-lg border border-slate-200 bg-white p-4">
-          <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase text-slate-500">
+        <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
+          <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase text-[var(--muted-foreground)]">
             <Mail size={14} /> Gmail draft
           </div>
-          <p className="font-medium text-slate-950">{emailDraft.subject}</p>
-          <p className="mt-1 text-xs text-slate-500">{emailDraft.to}</p>
+          <p className="font-medium text-[var(--foreground)]">{emailDraft.subject}</p>
+          <p className="mt-1 text-xs text-[var(--muted-foreground)]">{emailDraft.to}</p>
           <p className="mt-3 whitespace-pre-wrap leading-6">{emailDraft.body}</p>
         </div>
       ) : null}
       {invoiceStatusUpdate ? (
-        <div className="rounded-lg border border-slate-200 bg-white p-4">
-          <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase text-slate-500">
+        <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
+          <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase text-[var(--muted-foreground)]">
             <BadgeCheck size={14} /> Invoice status
           </div>
-          <p className="font-medium text-slate-950">
+          <p className="font-medium text-[var(--foreground)]">
             {invoiceStatusUpdate.invoiceNumber} {invoiceStatusUpdate.status}
           </p>
           {invoiceStatusUpdate.paidAt ? (
-            <p className="mt-2 text-xs text-slate-500">Paid at {invoiceStatusUpdate.paidAt}</p>
+            <p className="mt-2 text-xs text-[var(--muted-foreground)]">Paid at {invoiceStatusUpdate.paidAt}</p>
           ) : null}
         </div>
       ) : null}
       {invoiceRows.length > 0 ? (
-        <div className="rounded-lg border border-slate-200 bg-white p-4">
-          <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase text-slate-500">
+        <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
+          <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase text-[var(--muted-foreground)]">
             <Table2 size={14} /> Invoice rows
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[680px] border-collapse text-left text-xs">
+            <table className="w-full min-w-[680px] border-collapse text-left text-xs text-[var(--foreground)]">
               <thead>
-                <tr className="border-b border-slate-200 text-slate-500">
+                <tr className="border-b border-[var(--border)] text-[var(--muted-foreground)]">
                   <th className="py-2 pr-3 font-semibold">Invoice</th>
                   <th className="py-2 pr-3 font-semibold">Customer</th>
                   <th className="py-2 pr-3 font-semibold">Email</th>
@@ -119,14 +122,12 @@ function renderOutput(run: AgentRun) {
               </thead>
               <tbody>
                 {invoiceRows.map((row) => (
-                  <tr key={row.invoiceNumber} className="border-b border-slate-100">
-                    <td className="py-2 pr-3 font-medium text-slate-950">{row.invoiceNumber}</td>
+                  <tr key={row.invoiceNumber} className="border-b border-[var(--border)]">
+                    <td className="py-2 pr-3 font-medium text-[var(--foreground)]">{row.invoiceNumber}</td>
                     <td className="py-2 pr-3">{row.customerName}</td>
                     <td className="py-2 pr-3">{row.customerEmail}</td>
                     <td className="py-2 pr-3">{row.dueDate}</td>
-                    <td className="py-2 pr-3">
-                      {row.amount} {row.currency}
-                    </td>
+                    <td className="py-2 pr-3">{row.amount} {row.currency}</td>
                     <td className="py-2 pr-3">{row.status}</td>
                   </tr>
                 ))}
@@ -142,34 +143,31 @@ function renderOutput(run: AgentRun) {
 function RunColumn({ title, run }: { title: string; run?: AgentRun }) {
   if (!run) {
     return (
-      <section className="rounded-lg border border-dashed border-slate-300 bg-white p-5 text-sm text-slate-500">
+      <section className="rounded-lg border border-dashed border-[var(--border)] bg-[var(--muted)]/40 p-5 text-sm text-[var(--muted-foreground)]">
         {title}
       </section>
     );
   }
 
   return (
-    <section className="rounded-lg border border-slate-200 bg-slate-50 p-5">
+    <section className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase text-slate-500">{title}</p>
-          <h2 className="mt-1 text-xl font-semibold text-slate-950">
+          <p className="text-xs font-semibold uppercase text-[var(--muted-foreground)]">{title}</p>
+          <h2 className="mt-1 text-xl font-semibold text-[var(--foreground)]">
             {run.mode === "naive" ? "Without middleware" : "With Company Brain"}
           </h2>
         </div>
-        <Link
-          href={`/runs/${run.id}`}
-          className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-white"
-        >
-          Trace
-        </Link>
+        <Button asChild size="sm" variant="outline">
+          <Link href={`/runs/${run.id}`}>Trace</Link>
+        </Button>
       </div>
 
       <div className="mt-5 grid gap-2 sm:grid-cols-2">
         {metricRows(run).map(([label, value]) => (
-          <div key={label} className="rounded-md border border-slate-200 bg-white p-3">
-            <p className="text-xs text-slate-500">{label}</p>
-            <p className="mt-1 font-semibold text-slate-950">{value}</p>
+          <div key={label} className="rounded-md border border-[var(--border)] bg-[var(--muted)]/40 p-3">
+            <p className="text-xs text-[var(--muted-foreground)]">{label}</p>
+            <p className="mt-1 font-semibold text-[var(--foreground)]">{value}</p>
           </div>
         ))}
       </div>
@@ -177,12 +175,12 @@ function RunColumn({ title, run }: { title: string; run?: AgentRun }) {
       <div className="mt-5">{renderOutput(run)}</div>
 
       <div className="mt-5">
-        <p className="text-xs font-semibold uppercase text-slate-500">Sources used</p>
+        <p className="text-xs font-semibold uppercase text-[var(--muted-foreground)]">Sources used</p>
         <div className="mt-2 flex flex-wrap gap-2">
           {sourceList(run).map((source) => (
             <span
               key={source}
-              className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700"
+              className="rounded-md border border-[var(--border)] bg-[var(--muted)]/50 px-2 py-1 text-xs text-[var(--foreground)]"
             >
               {source}
             </span>
@@ -191,20 +189,20 @@ function RunColumn({ title, run }: { title: string; run?: AgentRun }) {
       </div>
 
       <div className="mt-5">
-        <p className="text-xs font-semibold uppercase text-slate-500">Action log</p>
+        <p className="text-xs font-semibold uppercase text-[var(--muted-foreground)]">Action log</p>
         <div className="mt-2 space-y-2">
           {run.actions.length === 0 ? (
-            <div className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-500">
+            <div className="rounded-md border border-[var(--border)] bg-[var(--muted)]/40 px-3 py-2 text-sm text-[var(--muted-foreground)]">
               No actions requested
             </div>
           ) : null}
           {run.actions.map((action) => (
             <div
               key={`${action.tool}-${JSON.stringify(action.output)}`}
-              className="flex items-center justify-between gap-3 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm"
+              className="flex items-center justify-between gap-3 rounded-md border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-sm"
             >
-              <span className="font-medium text-slate-800">{action.tool}</span>
-              <span className="text-slate-500">{action.status}</span>
+              <span className="font-medium text-[var(--foreground)]">{action.tool}</span>
+              <span className="text-[var(--muted-foreground)]">{action.status}</span>
             </div>
           ))}
         </div>
@@ -282,68 +280,63 @@ export function AgentDemo({
   });
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-8">
       <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div>
-          <p className="text-sm font-semibold uppercase text-teal-700">{displayName}</p>
-          <h1 className="mt-2 text-3xl font-semibold text-slate-950">
-            {displayName} demo
-          </h1>
+          <p className="text-sm font-semibold uppercase text-[var(--primary)]">{displayName}</p>
+          <h1 className="mt-2 text-3xl font-semibold text-[var(--foreground)]">{displayName} demo</h1>
           <textarea
             value={task}
             onChange={(event) => setTask(event.target.value)}
-            className="mt-5 min-h-32 w-full rounded-lg border border-slate-300 bg-white p-4 text-base leading-7 text-slate-900 shadow-sm outline-none focus:border-teal-600"
+            className="mt-5 min-h-32 w-full rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 text-base leading-7 text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
           />
           <div className="mt-4 flex flex-wrap gap-3">
-            <button
+            <Button
               onClick={() => runMode("naive")}
               disabled={Boolean(loading)}
-              className="inline-flex items-center gap-2 rounded-md bg-slate-950 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-60"
+              variant="outline"
             >
               {loading === "naive" ? <Loader2 size={16} className="animate-spin" /> : <Play size={16} />}
               Without middleware
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => runMode("company_brain")}
               disabled={Boolean(loading)}
-              className="inline-flex items-center gap-2 rounded-md bg-teal-700 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-800 disabled:opacity-60"
             >
               {loading === "company_brain" ? <Loader2 size={16} className="animate-spin" /> : <Play size={16} />}
               With Company Brain
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={runComparison}
               disabled={Boolean(loading)}
-              className="inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50 disabled:opacity-60"
+              variant="secondary"
             >
               {loading === "compare" ? <Loader2 size={16} className="animate-spin" /> : <Columns3 size={16} />}
               Run Comparison
-            </button>
+            </Button>
           </div>
         </div>
 
-        <aside className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-sm font-semibold text-slate-950">Selected scenario</p>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            {scenario?.title ?? scenarioId}
-          </p>
+        <aside className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm">
+          <p className="text-sm font-semibold text-[var(--foreground)]">Selected scenario</p>
+          <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">{scenario?.title ?? scenarioId}</p>
           {summary ? (
             <div className="mt-5 grid grid-cols-2 gap-2">
-              <div className="rounded-md bg-teal-50 p-3">
-                <p className="text-xs text-teal-800">Token reduction</p>
-                <p className="mt-1 text-lg font-semibold text-teal-950">{summary.tokenReduction}</p>
+              <div className="rounded-md border border-[var(--border)] bg-[var(--muted)]/45 p-3">
+                <p className="text-xs text-[var(--muted-foreground)]">Token reduction</p>
+                <p className="mt-1 text-lg font-semibold text-[var(--foreground)]">{summary.tokenReduction}</p>
               </div>
-              <div className="rounded-md bg-blue-50 p-3">
-                <p className="text-xs text-blue-800">Source precision</p>
-                <p className="mt-1 text-lg font-semibold text-blue-950">{summary.precisionGain}</p>
+              <div className="rounded-md border border-[var(--border)] bg-[var(--muted)]/45 p-3">
+                <p className="text-xs text-[var(--muted-foreground)]">Source precision</p>
+                <p className="mt-1 text-lg font-semibold text-[var(--foreground)]">{summary.precisionGain}</p>
               </div>
-              <div className="rounded-md bg-amber-50 p-3">
-                <p className="text-xs text-amber-800">Forbidden blocked</p>
-                <p className="mt-1 text-lg font-semibold text-amber-950">{summary.blocked}</p>
+              <div className="rounded-md border border-[var(--border)] bg-[var(--muted)]/45 p-3">
+                <p className="text-xs text-[var(--muted-foreground)]">Forbidden blocked</p>
+                <p className="mt-1 text-lg font-semibold text-[var(--foreground)]">{summary.blocked}</p>
               </div>
-              <div className="rounded-md bg-violet-50 p-3">
-                <p className="text-xs text-violet-800">Quality score</p>
-                <p className="mt-1 text-lg font-semibold text-violet-950">{summary.qualityGain}</p>
+              <div className="rounded-md border border-[var(--border)] bg-[var(--muted)]/45 p-3">
+                <p className="text-xs text-[var(--muted-foreground)]">Quality score</p>
+                <p className="mt-1 text-lg font-semibold text-[var(--foreground)]">{summary.qualityGain}</p>
               </div>
             </div>
           ) : null}
