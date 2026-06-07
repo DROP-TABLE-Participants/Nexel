@@ -1,0 +1,22 @@
+[
+  {
+    "id": "erp:invoice_inv_1007",
+    "invoiceNumber": "INV-1007",
+    "customer": "Acme",
+    "amount": 4200,
+    "currency": "EUR",
+    "status": "overdue",
+    "daysOverdue": 12,
+    "allowedAgents": ["teftero"]
+  },
+  {
+    "id": "erp:invoice_other_customer_2002",
+    "invoiceNumber": "INV-2002",
+    "customer": "BetaCo",
+    "amount": 9000,
+    "currency": "EUR",
+    "status": "overdue",
+    "daysOverdue": 28,
+    "allowedAgents": ["teftero"]
+  }
+]

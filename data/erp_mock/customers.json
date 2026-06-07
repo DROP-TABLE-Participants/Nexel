@@ -1,0 +1,16 @@
+[
+  {
+    "id": "erp:customer_acme",
+    "name": "Acme",
+    "status": "strategic",
+    "accountOwner": "Elena",
+    "allowedAgents": ["teftero", "voice_support"]
+  },
+  {
+    "id": "erp:customer_other",
+    "name": "BetaCo",
+    "status": "standard",
+    "accountOwner": "Nikolay",
+    "allowedAgents": ["teftero"]
+  }
+]

@@ -1,0 +1,11 @@
+[
+  {
+    "id": "mock:lead_finpay",
+    "name": "Maya Petrova",
+    "title": "CTO",
+    "company": "FinPay",
+    "industry": "fintech",
+    "email": "maya.petrova@finpay.example",
+    "allowedAgents": ["sales_outreach"]
+  }
+]

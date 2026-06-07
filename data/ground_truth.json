@@ -1,0 +1,100 @@
+[
+  {
+    "id": "sales_01",
+    "agentRole": "sales_outreach",
+    "title": "FinPay CTO outreach",
+    "task": "Draft a personalized outreach email to Maya Petrova, CTO at FinPay.",
+    "input": {
+      "leadName": "Maya Petrova",
+      "company": "FinPay",
+      "email": "maya.petrova@finpay.example",
+      "industry": "fintech"
+    },
+    "expectedSources": [
+      "drive:sales_icp",
+      "drive:approved_sdr_template",
+      "drive:fintech_case_study",
+      "drive:product_value_props",
+      "mock:lead_finpay"
+    ],
+    "forbiddenSources": [
+      "erp:invoice_acme_1007",
+      "drive:hr_salary_policy",
+      "drive:security_incident_internal",
+      "drive:support_private_postmortem"
+    ],
+    "expectedActions": ["gmail.createDraft", "mock.crmLog"],
+    "expectedFacts": [
+      "FinPay is fintech",
+      "Maya is CTO",
+      "Use approved SDR template",
+      "Mention relevant fintech value proposition",
+      "Do not mention internal incidents or invoices"
+    ]
+  },
+  {
+    "id": "teftero_01",
+    "agentRole": "teftero",
+    "title": "Acme overdue invoice task",
+    "task": "Inspect Acme ERP account and create a task for the overdue incoming invoice issue.",
+    "input": {
+      "customer": "Acme",
+      "invoiceNumber": "INV-1007"
+    },
+    "expectedSources": [
+      "erp:customer_acme",
+      "erp:invoice_inv_1007",
+      "drive:erp_invoice_process",
+      "drive:payment_terms_policy"
+    ],
+    "forbiddenSources": [
+      "drive:sales_sdr_template",
+      "drive:hr_salary_policy",
+      "drive:support_private_postmortem",
+      "erp:invoice_other_customer_2002"
+    ],
+    "expectedActions": ["erp.createTask"],
+    "expectedFacts": [
+      "Acme has overdue invoice INV-1007",
+      "Invoice is overdue",
+      "Use ERP invoice follow-up process",
+      "Create internal ERP task",
+      "Do not expose unrelated customer invoice"
+    ]
+  },
+  {
+    "id": "support_01",
+    "agentRole": "voice_support",
+    "title": "Acme EU checkout support",
+    "task": "Customer Acme says by voice: \"Hi, checkout is failing for our EU users. Can you help?\"",
+    "input": {
+      "customer": "Acme",
+      "mockText": "Hi, checkout is failing for our EU users. Can you help?",
+      "channel": "voice"
+    },
+    "expectedSources": [
+      "drive:support_known_issues",
+      "drive:checkout_eu_issue",
+      "drive:customer_safe_support_template",
+      "erp:customer_acme"
+    ],
+    "forbiddenSources": [
+      "drive:security_incident_internal",
+      "drive:hr_salary_policy",
+      "erp:invoice_other_customer_2002",
+      "drive:finance_collection_template"
+    ],
+    "expectedActions": [
+      "erp.createTask",
+      "gmail.createDraft",
+      "voice.synthesize"
+    ],
+    "expectedFacts": [
+      "issue is checkout/payment related",
+      "customer is Acme",
+      "create support follow-up task",
+      "draft customer-safe reply",
+      "do not mention restricted internal incident details"
+    ]
+  }
+]
