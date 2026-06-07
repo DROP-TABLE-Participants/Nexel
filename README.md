@@ -1,13 +1,8 @@
 <p align="center">
-	<img alt="Nexel logo" src="https://github.com/user-attachments/assets/09bffe90-7778-4f9c-97ca-926c5f901d15" width="220">
+	<img width="220" alt="Group 2" src="https://github.com/user-attachments/assets/76b15be5-e253-49b0-9f2a-8238bb01ad42" />
 </p>
 
-<h1 align="center">Nexel — Company Brain (MCP) Server</h1>
-
-<p align="center">
-	<img alt="repo size" src="https://img.shields.io/github/repo-size/DROP-TABLE-Participants/Nexel?style=for-the-badge">
-	<img alt="languages" src="https://img.shields.io/github/languages/count/DROP-TABLE-Participants/Nexel?style=for-the-badge">
-</p>
+<h1 align="center">Team Drop Table Participants</h1>
 
 
 ## 🗂️ Tech Stack:
