@@ -18,6 +18,7 @@
 /data/runs.json
 /data/outbox/*.json
 /data/erp_mock/tasks.json
+/data/notion_mock/invoice_updates.json
 
 # next.js
 /.next/

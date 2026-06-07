@@ -1,6 +1,5 @@
 import { getGmailAdapter } from "@/lib/connectors/gmail";
-import { getTefteroErpAdapter } from "@/lib/connectors/tefteroErp";
-import { synthesizeVoice } from "@/lib/voice";
+import { getNotionAdapter } from "@/lib/connectors/notion";
 import type { AgentAction } from "@/lib/types";
 
 type RequestedAction = {
@@ -24,7 +23,7 @@ export async function executeToolActions(output: Record<string, unknown>) {
     ? (output.actions as RequestedAction[])
     : [];
   const gmail = getGmailAdapter();
-  const erp = getTefteroErpAdapter();
+  const notion = getNotionAdapter();
   const actions: AgentAction[] = [];
 
   for (const action of requested) {
@@ -55,36 +54,14 @@ export async function executeToolActions(output: Record<string, unknown>) {
         continue;
       }
 
-      if (tool === "erp.createTask") {
-        const erpTask =
-          outputAt<{ title?: string; description?: string; priority?: string }>(
-            output,
-            "erpTask",
-          ) ??
-          outputAt<{ title?: string; description?: string; priority?: string }>(
-            output,
-            "supportTicket",
-          ) ??
-          {};
-        const result = await erp.createTask({
-          title: String(input.title ?? erpTask.title ?? "ERP task"),
-          description: String(erpTask.description ?? input.description ?? ""),
-          customerId: String(input.customerId ?? input.customer ?? "Acme"),
-          priority: String(input.priority ?? erpTask.priority ?? "normal"),
-        });
-        actions.push({
-          tool,
-          status: result.mocked ? "mocked" : "success",
-          input,
-          output: result,
-        });
-        continue;
-      }
-
-      if (tool === "voice.synthesize") {
-        const result = await synthesizeVoice({
-          text: String(output.voiceResponseText ?? ""),
-          voice: String(input.voice ?? "support-custom"),
+      if (tool === "notion.markInvoicePaid") {
+        const update = outputAt<{ invoiceNumber?: string; paidAt?: string }>(
+          output,
+          "invoiceStatusUpdate",
+        );
+        const result = await notion.markInvoicePaid({
+          invoiceNumber: String(input.invoiceNumber ?? update?.invoiceNumber ?? ""),
+          paidAt: input.paidAt ? String(input.paidAt) : update?.paidAt,
         });
         actions.push({
           tool,

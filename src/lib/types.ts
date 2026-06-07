@@ -1,23 +1,22 @@
-export type AgentRole = "sales_outreach" | "teftero" | "voice_support";
+export type AgentRole = "invoice_ops";
 
 export type DemoMode = "naive" | "company_brain";
 
-export type ConnectorName =
-  | "gmail"
-  | "google_drive"
-  | "teftero_erp"
-  | "local_mock";
+export type ConnectorName = "gmail" | "notion" | "google_drive" | "teftero_erp";
 
 export type Artifact = {
   id: string;
   connector: ConnectorName;
   sourceType:
     | "email"
+    | "notion_invoice"
+    | "notion_customer"
+    | "notion_payment"
+    | "notion_template"
     | "drive_doc"
     | "erp_customer"
     | "erp_invoice"
     | "erp_task"
-    | "voice_transcript"
     | "policy"
     | "template"
     | "restricted_doc";
@@ -32,6 +31,7 @@ export type Artifact = {
     customers?: string[];
     products?: string[];
     invoices?: string[];
+    months?: string[];
     orders?: string[];
     tickets?: string[];
     industries?: string[];

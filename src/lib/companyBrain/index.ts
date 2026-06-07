@@ -2,7 +2,7 @@ import { chunkArtifacts } from "@/lib/companyBrain/chunking";
 import { embedChunks } from "@/lib/companyBrain/embeddings";
 import { getGmailAdapter } from "@/lib/connectors/gmail";
 import { getGoogleDriveAdapter } from "@/lib/connectors/googleDrive";
-import { listLocalMockArtifacts } from "@/lib/connectors/localMock";
+import { getNotionAdapter } from "@/lib/connectors/notion";
 import { listErpArtifacts } from "@/lib/connectors/tefteroErp";
 import type { Artifact, Chunk } from "@/lib/types";
 
@@ -12,12 +12,13 @@ export type IngestResult = {
 };
 
 export async function ingestArtifacts(): Promise<IngestResult> {
-  const drive = getGoogleDriveAdapter();
   const gmail = getGmailAdapter();
+  const notion = getNotionAdapter();
+  const drive = getGoogleDriveAdapter();
   const artifacts = [
+    ...(await notion.listInvoiceArtifacts()),
     ...(await drive.listKnowledgeDocs()),
     ...(await listErpArtifacts()),
-    ...(await listLocalMockArtifacts()),
     ...((await gmail.listRecentEmails?.()) ?? []),
   ];
 

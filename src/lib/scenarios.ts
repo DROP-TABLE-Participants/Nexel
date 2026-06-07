@@ -18,7 +18,6 @@ export async function getDefaultScenarioForAgent(agentRole: AgentRole) {
 }
 
 export function defaultScenarioId(agentRole: AgentRole) {
-  if (agentRole === "sales_outreach") return "sales_01";
-  if (agentRole === "teftero") return "teftero_01";
-  return "support_01";
+  if (agentRole === "invoice_ops") return "invoice_send_email";
+  return "invoice_send_email";
 }

@@ -1,16 +1,38 @@
 [
   {
-    "id": "erp:customer_acme",
-    "name": "Acme",
-    "status": "strategic",
-    "accountOwner": "Elena",
-    "allowedAgents": ["teftero", "voice_support"]
+    "id": "erp:customer_acme_labs",
+    "name": "Acme Labs",
+    "status": "active",
+    "accountOwner": "Iva Finance"
   },
   {
-    "id": "erp:customer_other",
-    "name": "BetaCo",
-    "status": "standard",
-    "accountOwner": "Nikolay",
-    "allowedAgents": ["teftero"]
+    "id": "erp:customer_laguna_services",
+    "name": "Laguna Services",
+    "status": "active",
+    "accountOwner": "Mira Collections"
+  },
+  {
+    "id": "erp:customer_northstar_retail",
+    "name": "Northstar Retail",
+    "status": "active",
+    "accountOwner": "Iva Finance"
+  },
+  {
+    "id": "erp:customer_bluebird_health",
+    "name": "Bluebird Health",
+    "status": "active",
+    "accountOwner": "Mira Collections"
+  },
+  {
+    "id": "erp:customer_orion_systems",
+    "name": "Orion Systems",
+    "status": "active",
+    "accountOwner": "Iva Finance"
+  },
+  {
+    "id": "erp:customer_meridian_foods",
+    "name": "Meridian Foods",
+    "status": "active",
+    "accountOwner": "Mira Collections"
   }
 ]

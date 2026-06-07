@@ -40,27 +40,37 @@ function parseAgents(value?: string): AgentRole[] {
   return value
     .split(",")
     .map((item) => item.trim())
-    .filter(Boolean) as AgentRole[];
+    .filter((item): item is AgentRole => item === "invoice_ops");
 }
 
 function inferDriveSourceType(fileName: string, fm: Frontmatter): Artifact["sourceType"] {
   if (fm.sensitivity === "restricted") return "restricted_doc";
   if (fileName.includes("template")) return "template";
-  if (fileName.includes("policy") || fileName.includes("process")) return "policy";
+  if (fileName.includes("policy") || fileName.includes("process") || fileName.includes("sop") || fileName.includes("rules")) return "policy";
   return "drive_doc";
 }
 
 function extractEntities(text: string, title: string): Artifact["entities"] {
   const joined = `${title} ${text}`;
   return {
-    people: ["Maya Petrova"].filter((name) => joined.includes(name)),
-    companies: ["FinPay", "Acme", "BetaCo"].filter((name) => joined.includes(name)),
-    customers: ["Acme", "BetaCo"].filter((name) => joined.includes(name)),
-    products: ["Checkout", "Company Brain"].filter((name) =>
-      joined.toLowerCase().includes(name.toLowerCase()),
-    ),
-    industries: ["fintech", "SaaS"].filter((name) =>
-      joined.toLowerCase().includes(name.toLowerCase()),
+    companies: [
+      "Acme Labs",
+      "Northstar Retail",
+      "Bluebird Health",
+      "Orion Systems",
+      "Laguna Services",
+      "Meridian Foods",
+    ].filter((name) => joined.includes(name)),
+    invoices: [
+      "INV-2026-0503",
+      "INV-2026-0507",
+      "INV-2026-0511",
+      "INV-2026-0501",
+      "INV-2026-0419",
+      "INV-2026-0602",
+    ].filter((invoice) => joined.includes(invoice)),
+    months: ["2026-04", "April 2026", "2026-05", "May 2026", "2026-06", "June 2026"].filter(
+      (month) => joined.includes(month),
     ),
   };
 }
@@ -100,7 +110,13 @@ function artifactFromMarkdown(fileName: string, raw: string): Artifact {
 
 class MockGoogleDriveAdapter implements GoogleDriveAdapter {
   async listKnowledgeDocs(): Promise<Artifact[]> {
-    const entries = await readdir(driveMockDir());
+    let entries: string[];
+    try {
+      entries = await readdir(driveMockDir());
+    } catch {
+      return [];
+    }
+
     const markdownFiles = entries.filter((entry) => entry.endsWith(".md"));
     const docs = await Promise.all(
       markdownFiles.map(async (fileName) => {
@@ -119,8 +135,8 @@ class MockGoogleDriveAdapter implements GoogleDriveAdapter {
 
 class RealGoogleDriveAdapter extends MockGoogleDriveAdapter {
   async listKnowledgeDocs(): Promise<Artifact[]> {
-    // TODO: Replace this placeholder with Google Drive API listing when
-    // GOOGLE_DRIVE_ACCESS_TOKEN and GOOGLE_DRIVE_FOLDER_ID are configured.
+    // Real listing is intentionally deferred. Keep the adapter boundary stable
+    // for later Google Drive API integration.
     return super.listKnowledgeDocs();
   }
 }

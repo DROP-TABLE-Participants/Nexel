@@ -1,5 +1,5 @@
 import { dataFilePath, readJsonFile, writeJsonFile } from "@/lib/storage/fileStore";
-import type { AgentRole, Artifact } from "@/lib/types";
+import type { Artifact } from "@/lib/types";
 
 export interface TefteroErpAdapter {
   getCustomer(customerNameOrId: string): Promise<Artifact | null>;
@@ -17,7 +17,6 @@ type MockCustomer = {
   name: string;
   status: string;
   accountOwner: string;
-  allowedAgents: AgentRole[];
 };
 
 type MockInvoice = {
@@ -27,8 +26,10 @@ type MockInvoice = {
   amount: number;
   currency: string;
   status: string;
+  month?: string;
+  dueDate?: string;
   daysOverdue: number;
-  allowedAgents: AgentRole[];
+  paymentReceivedAt?: string;
 };
 
 type MockTask = {
@@ -40,8 +41,9 @@ type MockTask = {
   createdAt: string;
 };
 
-const erpPath = (file: string) => dataFilePath("erp_mock", file);
 type UnknownRecord = Record<string, unknown>;
+
+const erpPath = (file: string) => dataFilePath("erp_mock", file);
 
 function customerArtifact(customer: MockCustomer): Artifact {
   return {
@@ -56,7 +58,7 @@ function customerArtifact(customer: MockCustomer): Artifact {
     },
     metadata: customer,
     access: {
-      allowedAgents: customer.allowedAgents,
+      allowedAgents: ["invoice_ops"],
       sensitivity: "customer_safe",
       department: "erp",
     },
@@ -64,20 +66,30 @@ function customerArtifact(customer: MockCustomer): Artifact {
 }
 
 function invoiceArtifact(invoice: MockInvoice): Artifact {
+  const label = monthLabel(invoice.month);
   return {
     id: invoice.id,
     connector: "teftero_erp",
     sourceType: "erp_invoice",
     title: `Invoice ${invoice.invoiceNumber} for ${invoice.customer}`,
-    text: `${invoice.customer} invoice ${invoice.invoiceNumber} is ${invoice.status}. Amount ${invoice.amount} ${invoice.currency}. Days overdue: ${invoice.daysOverdue}.`,
+    text: [
+      `${invoice.customer} invoice ${invoice.invoiceNumber}.`,
+      `Status: ${invoice.status}.`,
+      invoice.month ? `Month: ${invoice.month}${label ? ` (${label})` : ""}.` : "",
+      invoice.dueDate ? `Due date: ${invoice.dueDate}.` : "",
+      `Amount ${invoice.amount} ${invoice.currency}.`,
+      `Days overdue: ${invoice.daysOverdue}.`,
+      invoice.paymentReceivedAt ? `Payment received at: ${invoice.paymentReceivedAt}.` : "",
+    ].filter(Boolean).join(" "),
     entities: {
       customers: [invoice.customer],
       companies: [invoice.customer],
       invoices: [invoice.invoiceNumber],
+      months: [invoice.month, label].filter(Boolean) as string[],
     },
     metadata: invoice,
     access: {
-      allowedAgents: invoice.allowedAgents,
+      allowedAgents: ["invoice_ops"],
       sensitivity: "finance",
       department: "finance",
     },
@@ -108,6 +120,18 @@ function asArray<T>(payload: unknown): T[] {
   return [];
 }
 
+function monthLabel(month?: string) {
+  if (month === "2026-04") return "April 2026";
+  if (month === "2026-05") return "May 2026";
+  if (month === "2026-06") return "June 2026";
+  return "";
+}
+
+function monthFromDate(date?: string) {
+  const match = date?.match(/^\d{4}-\d{2}/);
+  return match?.[0] ?? "";
+}
+
 function realCompanyArtifact(company: UnknownRecord): Artifact {
   const id = textValue(company.id ?? company.companyId, `erp:company_${Date.now()}`);
   const name = textValue(company.name ?? company.companyName, "Unknown company");
@@ -128,7 +152,7 @@ function realCompanyArtifact(company: UnknownRecord): Artifact {
     },
     metadata: company,
     access: {
-      allowedAgents: ["teftero", "voice_support"],
+      allowedAgents: ["invoice_ops"],
       sensitivity: "customer_safe",
       department: "erp",
     },
@@ -144,21 +168,32 @@ function realIncomingInvoiceArtifact(invoice: UnknownRecord): Artifact {
   const remainingAmount = numberValue(invoice.remainingAmount, totalAmount);
   const status = textValue(invoice.paymentStatus, "unknown");
   const currency = String(invoice.currency ?? "EUR");
+  const dueDate = textValue(invoice.dueDate);
+  const month = monthFromDate(dueDate || textValue(invoice.issueDate));
+  const label = monthLabel(month);
 
   return {
     id: textValue(invoice.id, `erp:incoming_invoice_${invoiceNumber}`),
     connector: "teftero_erp",
     sourceType: "erp_invoice",
     title: `Incoming invoice ${invoiceNumber} for ${customer}`,
-    text: `${customer} incoming invoice ${invoiceNumber} is ${status}. Total ${totalAmount} ${currency}. Remaining ${remainingAmount} ${currency}. Due date: ${textValue(invoice.dueDate, "not set")}.`,
+    text: [
+      `${customer} incoming invoice ${invoiceNumber}.`,
+      `Status: ${status}.`,
+      month ? `Month: ${month}${label ? ` (${label})` : ""}.` : "",
+      `Total ${totalAmount} ${currency}.`,
+      `Remaining ${remainingAmount} ${currency}.`,
+      `Due date: ${dueDate || "not set"}.`,
+    ].filter(Boolean).join(" "),
     entities: {
       customers: [customer],
       companies: [customer, supplier, receiver].filter(Boolean),
       invoices: [invoiceNumber],
+      months: [month, label].filter(Boolean),
     },
     metadata: invoice,
     access: {
-      allowedAgents: ["teftero"],
+      allowedAgents: ["invoice_ops"],
       sensitivity: "finance",
       department: "finance",
     },
@@ -184,7 +219,11 @@ function buildTaskPayload(input: {
   priority?: string;
 }) {
   const date = todayDateOnly();
-  const description = [input.title, input.description, input.customerId ? `Customer: ${input.customerId}` : ""]
+  const description = [
+    input.title,
+    input.description,
+    input.customerId ? `Customer: ${input.customerId}` : "",
+  ]
     .filter(Boolean)
     .join("\n\n");
 
@@ -292,10 +331,6 @@ class RealTefteroErpAdapter extends MockTefteroErpAdapter {
     customerId?: string;
     priority?: string;
   }): Promise<{ id: string; mocked: boolean }> {
-    // Teftero source reference:
-    // ERP.Web/src/app/api/[tenant]/task-management/tasks/route.ts posts to
-    // /api/{tenant}/task-management/tasks after sanitizing TaskIm payloads.
-    // Keep this method boundary stable while mapping the MVP shape to TaskIm.
     const result = await this.request<UnknownRecord>(
       `/api/${this.tenant}/task-management/tasks`,
       {
@@ -309,9 +344,6 @@ class RealTefteroErpAdapter extends MockTefteroErpAdapter {
   }
 
   async getCustomer(customerNameOrId: string): Promise<Artifact | null> {
-    // Teftero source reference:
-    // ERP.Web/src/app/api/[tenant]/contacts/companies/route.ts exposes
-    // /api/{tenant}/contacts/companies and /api/{tenant}/contacts/companies/{id}.
     const byId = await this.request<UnknownRecord>(
       `/api/${this.tenant}/contacts/companies/${encodeURIComponent(customerNameOrId)}`,
     );
@@ -333,9 +365,6 @@ class RealTefteroErpAdapter extends MockTefteroErpAdapter {
   }
 
   async getInvoices(customerId?: string): Promise<Artifact[]> {
-    // Teftero source reference:
-    // ERP.Web/src/app/api/[tenant]/finance/incoming-invoice/route.ts exposes
-    // /api/{tenant}/finance/incoming-invoice for invoice lists.
     const invoices = asArray<UnknownRecord>(
       await this.request<UnknownRecord[] | { items?: UnknownRecord[] }>(
         `/api/${this.tenant}/finance/incoming-invoice`,
@@ -364,11 +393,17 @@ export function getTefteroErpAdapter(): TefteroErpAdapter {
 
 export async function listErpArtifacts() {
   const adapter = getTefteroErpAdapter();
-  const customers = await Promise.all(
-    ["Acme", "BetaCo"].map((customer) => adapter.getCustomer(customer)),
-  );
-  return [
-    ...customers.filter((customer): customer is Artifact => Boolean(customer)),
-    ...(await adapter.getInvoices()),
+  const invoices = await adapter.getInvoices();
+  const customerNames = [
+    "Acme Labs",
+    "Laguna Services",
+    "Northstar Retail",
+    "Bluebird Health",
+    "Orion Systems",
+    "Meridian Foods",
   ];
+  const customers = await Promise.all(
+    customerNames.map((customerName) => adapter.getCustomer(customerName)),
+  );
+  return [...customers.filter((customer): customer is Artifact => Boolean(customer)), ...invoices];
 }

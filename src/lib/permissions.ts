@@ -35,8 +35,22 @@ function rowToPolicy(row: PermissionRow): AgentPolicy {
 export async function seedDefaultPermissions() {
   await ensureDatabase();
   const pool = db();
+  const policyRows = Object.values(policies).map((policy): unknown[] => [
+    policy.role,
+    policy.displayName,
+    policy.jobDescription,
+    JSON.stringify(policy.allowedConnectors),
+    JSON.stringify(policy.allowedDepartments),
+    JSON.stringify(policy.allowedSensitivity),
+    JSON.stringify(policy.forbiddenSourceTypes),
+    JSON.stringify(policy.requiredContextTypes),
+    JSON.stringify(policy.allowedActions),
+    policy.maxSources,
+    policy.maxContextTokens,
+  ]);
+
   await Promise.all(
-    Object.values(policies).map((policy) =>
+    policyRows.map((params) =>
       pool.query(
         `
           INSERT INTO agent_permissions (
@@ -55,21 +69,49 @@ export async function seedDefaultPermissions() {
           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
           ON CONFLICT (role) DO NOTHING
         `,
-        [
-          policy.role,
-          policy.displayName,
-          policy.jobDescription,
-          JSON.stringify(policy.allowedConnectors),
-          JSON.stringify(policy.allowedDepartments),
-          JSON.stringify(policy.allowedSensitivity),
-          JSON.stringify(policy.forbiddenSourceTypes),
-          JSON.stringify(policy.requiredContextTypes),
-          JSON.stringify(policy.allowedActions),
-          policy.maxSources,
-          policy.maxContextTokens,
-        ],
+        params,
       ),
     ),
+  );
+
+  const invoiceOps = policies.invoice_ops;
+  await pool.query(
+    `
+      UPDATE agent_permissions
+      SET
+        display_name = $2,
+        job_description = $3,
+        allowed_connectors = $4,
+        allowed_departments = $5,
+        allowed_sensitivity = $6,
+        forbidden_source_types = $7,
+        required_context_types = $8,
+        allowed_actions = $9,
+        max_sources = $10,
+        max_context_tokens = $11,
+        updated_at = now()
+      WHERE role = $1
+        AND max_sources <= 6
+        AND NOT (allowed_connectors @> $12::jsonb)
+        AND NOT (allowed_connectors @> $13::jsonb)
+        AND NOT (required_context_types @> $14::jsonb)
+    `,
+    [
+      invoiceOps.role,
+      invoiceOps.displayName,
+      invoiceOps.jobDescription,
+      JSON.stringify(invoiceOps.allowedConnectors),
+      JSON.stringify(invoiceOps.allowedDepartments),
+      JSON.stringify(invoiceOps.allowedSensitivity),
+      JSON.stringify(invoiceOps.forbiddenSourceTypes),
+      JSON.stringify(invoiceOps.requiredContextTypes),
+      JSON.stringify(invoiceOps.allowedActions),
+      invoiceOps.maxSources,
+      invoiceOps.maxContextTokens,
+      JSON.stringify(["google_drive"]),
+      JSON.stringify(["teftero_erp"]),
+      JSON.stringify(["payment status"]),
+    ],
   );
 }
 
@@ -93,7 +135,10 @@ export async function listAgentPermissions() {
       ORDER BY role
     `,
   );
-  return result.rows.map(rowToPolicy);
+  const activeRoles = new Set(Object.keys(policies));
+  return result.rows
+    .filter((row) => activeRoles.has(row.role))
+    .map(rowToPolicy);
 }
 
 export async function getEffectivePolicy(role: AgentRole) {

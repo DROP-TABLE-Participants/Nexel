@@ -1,100 +1,117 @@
 [
   {
-    "id": "sales_01",
-    "agentRole": "sales_outreach",
-    "title": "FinPay CTO outreach",
-    "task": "Draft a personalized outreach email to Maya Petrova, CTO at FinPay.",
+    "id": "invoice_send_email",
+    "agentRole": "invoice_ops",
+    "title": "Send email for unpaid invoice",
+    "task": "Draft a customer-safe email to Acme Labs about unpaid invoice INV-2026-0503.",
     "input": {
-      "leadName": "Maya Petrova",
-      "company": "FinPay",
-      "email": "maya.petrova@finpay.example",
-      "industry": "fintech"
+      "invoiceNumber": "INV-2026-0503",
+      "customerName": "Acme Labs",
+      "customerEmail": "ap@acmelabs.example",
+      "month": "2026-05"
     },
     "expectedSources": [
-      "drive:sales_icp",
-      "drive:approved_sdr_template",
-      "drive:fintech_case_study",
-      "drive:product_value_props",
-      "mock:lead_finpay"
+      "notion:invoice_inv_2026_0503",
+      "notion:customer_acme_labs",
+      "notion:template_unpaid_invoice_email",
+      "drive:invoice_unpaid_email_guidance",
+      "erp:invoice_inv_2026_0503",
+      "erp:customer_acme_labs"
     ],
     "forbiddenSources": [
-      "erp:invoice_acme_1007",
-      "drive:hr_salary_policy",
-      "drive:security_incident_internal",
-      "drive:support_private_postmortem"
+      "notion:invoice_inv_2026_0501_paid",
+      "notion:invoice_inv_2026_0419",
+      "notion:invoice_inv_2026_0602",
+      "notion:restricted_margin_notes",
+      "drive:restricted_invoice_margin_notes",
+      "erp:invoice_inv_2026_0501_paid",
+      "erp:invoice_inv_2026_0419",
+      "erp:invoice_inv_2026_0602"
     ],
-    "expectedActions": ["gmail.createDraft", "mock.crmLog"],
+    "expectedActions": ["gmail.createDraft"],
     "expectedFacts": [
-      "FinPay is fintech",
-      "Maya is CTO",
-      "Use approved SDR template",
-      "Mention relevant fintech value proposition",
-      "Do not mention internal incidents or invoices"
+      "Acme Labs has unpaid invoice INV-2026-0503",
+      "Invoice amount is 4200 USD",
+      "Customer email is ap@acmelabs.example",
+      "Use the unpaid invoice email template",
+      "Use Google Drive unpaid invoice email guidance",
+      "Teftero ERP status for INV-2026-0503 is unpaid",
+      "Do not mention unrelated invoices"
     ]
   },
   {
-    "id": "teftero_01",
-    "agentRole": "teftero",
-    "title": "Acme overdue invoice task",
-    "task": "Inspect Acme ERP account and create a task for the overdue incoming invoice issue.",
+    "id": "invoice_mark_paid",
+    "agentRole": "invoice_ops",
+    "title": "Close invoice",
+    "task": "Mark Laguna Services invoice INV-2026-0419 as paid in Notion and summarize the closure.",
     "input": {
-      "customer": "Acme",
-      "invoiceNumber": "INV-1007"
+      "invoiceNumber": "INV-2026-0419",
+      "customerName": "Laguna Services",
+      "month": "2026-04"
     },
     "expectedSources": [
-      "erp:customer_acme",
-      "erp:invoice_inv_1007",
-      "drive:erp_invoice_process",
-      "drive:payment_terms_policy"
+      "notion:invoice_inv_2026_0419",
+      "notion:customer_laguna_services",
+      "drive:invoice_closure_sop",
+      "erp:invoice_inv_2026_0419",
+      "erp:customer_laguna_services"
     ],
     "forbiddenSources": [
-      "drive:sales_sdr_template",
-      "drive:hr_salary_policy",
-      "drive:support_private_postmortem",
-      "erp:invoice_other_customer_2002"
+      "notion:invoice_inv_2026_0503",
+      "notion:invoice_inv_2026_0507",
+      "notion:invoice_inv_2026_0511",
+      "notion:restricted_margin_notes",
+      "drive:restricted_invoice_margin_notes",
+      "erp:invoice_inv_2026_0503",
+      "erp:invoice_inv_2026_0507",
+      "erp:invoice_inv_2026_0511"
     ],
-    "expectedActions": ["erp.createTask"],
+    "expectedActions": ["notion.markInvoicePaid"],
     "expectedFacts": [
-      "Acme has overdue invoice INV-1007",
-      "Invoice is overdue",
-      "Use ERP invoice follow-up process",
-      "Create internal ERP task",
-      "Do not expose unrelated customer invoice"
+      "Laguna Services invoice INV-2026-0419 is marked paid",
+      "Teftero ERP shows payment received evidence",
+      "Use the Google Drive invoice closure SOP",
+      "Record the paid status in Notion",
+      "Do not close unrelated May invoices"
     ]
   },
   {
-    "id": "support_01",
-    "agentRole": "voice_support",
-    "title": "Acme EU checkout support",
-    "task": "Customer Acme says by voice: \"Hi, checkout is failing for our EU users. Can you help?\"",
+    "id": "invoice_unpaid_may_report",
+    "agentRole": "invoice_ops",
+    "title": "Unpaid May invoice rows",
+    "task": "Return unpaid May 2026 invoice rows for an MCP client to turn into Excel. Do not generate an Excel file.",
     "input": {
-      "customer": "Acme",
-      "mockText": "Hi, checkout is failing for our EU users. Can you help?",
-      "channel": "voice"
+      "month": "2026-05",
+      "status": "unpaid",
+      "responseFormat": "invoice_rows"
     },
     "expectedSources": [
-      "drive:support_known_issues",
-      "drive:checkout_eu_issue",
-      "drive:customer_safe_support_template",
-      "erp:customer_acme"
+      "notion:invoice_inv_2026_0503",
+      "notion:invoice_inv_2026_0507",
+      "notion:invoice_inv_2026_0511",
+      "drive:may_unpaid_invoice_report_rules",
+      "erp:invoice_inv_2026_0503",
+      "erp:invoice_inv_2026_0507",
+      "erp:invoice_inv_2026_0511"
     ],
     "forbiddenSources": [
-      "drive:security_incident_internal",
-      "drive:hr_salary_policy",
-      "erp:invoice_other_customer_2002",
-      "drive:finance_collection_template"
+      "notion:invoice_inv_2026_0501_paid",
+      "notion:invoice_inv_2026_0419",
+      "notion:invoice_inv_2026_0602",
+      "notion:restricted_margin_notes",
+      "drive:restricted_invoice_margin_notes",
+      "erp:invoice_inv_2026_0501_paid",
+      "erp:invoice_inv_2026_0419",
+      "erp:invoice_inv_2026_0602"
     ],
-    "expectedActions": [
-      "erp.createTask",
-      "gmail.createDraft",
-      "voice.synthesize"
-    ],
+    "expectedActions": [],
     "expectedFacts": [
-      "issue is checkout/payment related",
-      "customer is Acme",
-      "create support follow-up task",
-      "draft customer-safe reply",
-      "do not mention restricted internal incident details"
+      "Only unpaid May 2026 invoices are returned",
+      "Teftero ERP supports the unpaid May invoice status",
+      "Use Google Drive May unpaid invoice report rules",
+      "Paid May invoices are excluded",
+      "Non-May invoices are excluded",
+      "Rows are returned as data only"
     ]
   }
 ]

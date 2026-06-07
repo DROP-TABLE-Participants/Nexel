@@ -1,9 +1,7 @@
 import { getContextPack } from "@/lib/companyBrain/contextPackBuilder";
 import { getNaiveContext } from "@/lib/companyBrain/naiveRetriever";
 import { evaluateRun } from "@/lib/evaluation";
-import { runSalesOutreachAgent } from "@/lib/agents/salesOutreachAgent";
-import { runTefteroAgent } from "@/lib/agents/tefteroAgent";
-import { runVoiceSupportAgent } from "@/lib/agents/voiceSupportAgent";
+import { runInvoiceOperationsAgent } from "@/lib/agents/invoiceOperationsAgent";
 import { executeToolActions } from "@/lib/agents/tools";
 import { getScenario } from "@/lib/scenarios";
 import { saveRun } from "@/lib/runs";
@@ -21,9 +19,7 @@ async function executeAgent(input: {
   context: string | EvidencePack;
   sources: Awaited<ReturnType<typeof getNaiveContext>>["sources"];
 }) {
-  if (input.scenario.agentRole === "sales_outreach") return runSalesOutreachAgent(input);
-  if (input.scenario.agentRole === "teftero") return runTefteroAgent(input);
-  return runVoiceSupportAgent(input);
+  return runInvoiceOperationsAgent(input);
 }
 
 export async function runAgent(input: {

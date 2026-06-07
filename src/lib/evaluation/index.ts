@@ -11,9 +11,6 @@ import type {
 } from "@/lib/types";
 
 function normalizeSourceId(id: string) {
-  if (id === "erp:invoice_acme_1007") return "erp:invoice_inv_1007";
-  if (id === "drive:sales_sdr_template") return "drive:approved_sdr_template";
-  if (id === "drive:finance_collection_template") return "drive:payment_terms_policy";
   return id;
 }
 

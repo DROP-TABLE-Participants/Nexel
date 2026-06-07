@@ -64,9 +64,7 @@ MCP-Protocol-Version: 2025-11-25
 
 ## Product Areas
 
-- `/agents/sales`: sales outreach profile demo.
-- `/agents/teftero`: ERP operations profile demo.
-- `/agents/support`: voice support profile demo.
+- `/agents/invoices`: invoice operations demo using Notion rows with Teftero ERP and Google Drive evidence.
 - `/permissions`: edit profile access limits.
 - `/dashboard`: view runs, MCP usage, source heatmap, blocked sources, and estimated money saved.
 - `/runs/[id]`: inspect a saved run trace.
@@ -84,6 +82,9 @@ MODEL_OUTPUT_USD_PER_1M=10
 GMAIL_ACCESS_TOKEN=
 GMAIL_USER_ID=me
 GMAIL_ENABLE_REAL_DRAFTS=false
+NOTION_API_KEY=
+NOTION_INVOICE_DATABASE_ID=
+NOTION_USE_REAL_API=false
 GOOGLE_DRIVE_ACCESS_TOKEN=
 GOOGLE_DRIVE_FOLDER_ID=
 TEFTERO_ERP_BASE_URL=
@@ -97,7 +98,7 @@ TEFTERO_USE_REAL_API=false
 SEND_REAL_EMAILS=false
 ```
 
-Missing non-database credentials never crash the demo. OpenAI, Gmail, Google Drive, Teftero ERP, transcription, and speech keep mock fallbacks unless credentials and explicit enable flags are present.
+Missing non-database credentials never crash the demo. OpenAI, Gmail, Notion, Google Drive, and Teftero ERP keep mock fallbacks unless credentials and explicit enable flags are present.
 
 `OPENAI_MAX_OUTPUT_TOKENS` defaults to `1200` when unset. Company Brain evidence is serialized into compact TSON before model calls to reduce scoped prompt tokens while naive mode remains the broad baseline.
 
@@ -138,20 +139,24 @@ Run the TSON prompt savings check:
 npm run test:token-optimization
 ```
 
-The check compares legacy JSON evidence prompts to the compact TSON prompt for the sales, Teftero, and support fixtures and fails if any fixture saves less than 20%.
+The check compares legacy JSON evidence prompts to the compact TSON prompt for invoice email, invoice closure, and unpaid May invoice row fixtures. It fails if any fixture saves less than 20%.
 
-## Teftero ERP Adapter
+## Invoice Mock Data
 
-The adapter boundary is in `src/lib/connectors/tefteroErp.ts`.
+The adapter boundary is in `src/lib/connectors/notion.ts`.
 
-Current real API patterns found in `/Users/sivanov/Documents/Projects/ERP`:
+Seed invoices live in `data/notion_mock/invoices.json`. Supporting mock evidence lives in `data/erp_mock` and `data/drive_mock`. Runtime status changes are written to ignored `data/notion_mock/invoice_updates.json`, so demo actions do not mutate seed fixtures.
 
-- Companies: `/api/{tenant}/contacts/companies`
-- Tasks: `/api/{tenant}/task-management/tasks`
-- Incoming invoices: `/api/{tenant}/finance/incoming-invoice`
+The active scenarios are:
 
-The checked ERP.Web app does not expose generic orders, note-write, or support-ticket endpoints, so the demo uses Teftero tasks for ERP follow-up work. Real calls send the access token as both `Authorization: Bearer ...` and an `accessToken` cookie because ERP.Web route guards read the cookie. Set `TEFTERO_ERP_PERM_TICKET` if your ERP.Web session also requires the permission ticket header.
+- `invoice_send_email`: draft a Gmail email for an unpaid Notion invoice using Google Drive email guidance and Teftero status evidence.
+- `invoice_mark_paid`: record a mock Notion status update for a specific invoice after Teftero shows payment received evidence.
+- `invoice_unpaid_may_report`: return unpaid May 2026 invoice rows for an MCP client, with supporting Teftero and Google Drive evidence. The app does not generate Excel files.
 
-Task creation maps the demo task into ERP.Web `TaskIm` shape. Set `TEFTERO_ERP_TASK_ACTIVITY_ID` and `TEFTERO_ERP_TASK_ACCOUNTABLE_EMPLOYEE_ID` for real task writes; if Teftero rejects a request or credentials are missing, the adapter preserves mock fallback behavior.
+`get_company_context` accepts `responseFormat: "invoice_rows"` for scoped table retrieval. The response returns only row data, source IDs, filters, row count, and blocked-source count. Telemetry is omitted from MCP tool responses unless `includeTelemetry: true`, but it is always persisted for the dashboard.
+
+## Other Connections
+
+Google Drive and Teftero ERP remain available as connector adapters in `src/lib/connectors/googleDrive.ts` and `src/lib/connectors/tefteroErp.ts`. The old UI demos for those systems were removed, but the connections and env placeholders are preserved for future workflows.
 
 MCP context tools omit telemetry from tool responses by default to reduce client token load. Pass `includeTelemetry: true` to `get_company_context` or `run_demo_agent` only when debugging; telemetry is still persisted for the dashboard either way.

@@ -1,13 +1,41 @@
 import type { AgentRole } from "@/lib/types";
 
 const knownEntities = {
-  people: ["Maya Petrova"],
-  companies: ["FinPay", "Acme", "BetaCo"],
-  customers: ["Acme", "BetaCo"],
-  products: ["Checkout", "Company Brain"],
-  invoices: ["INV-1007", "INV-2002"],
-  industries: ["fintech", "SaaS"],
+  companies: [
+    "Acme Labs",
+    "Northstar Retail",
+    "Bluebird Health",
+    "Orion Systems",
+    "Laguna Services",
+    "Meridian Foods",
+  ],
+  customers: [
+    "Acme Labs",
+    "Northstar Retail",
+    "Bluebird Health",
+    "Orion Systems",
+    "Laguna Services",
+    "Meridian Foods",
+  ],
+  invoices: [
+    "INV-2026-0503",
+    "INV-2026-0507",
+    "INV-2026-0511",
+    "INV-2026-0501",
+    "INV-2026-0419",
+    "INV-2026-0602",
+  ],
+  months: ["2026-04", "April 2026", "2026-05", "May 2026", "2026-06", "June 2026"],
 };
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function includesEntity(text: string, value: string) {
+  const pattern = new RegExp(`(^|[^a-z0-9])${escapeRegExp(value.toLowerCase())}($|[^a-z0-9])`);
+  return pattern.test(text);
+}
 
 export function resolveEntities(
   text: string,
@@ -16,7 +44,7 @@ export function resolveEntities(
   const lower = text.toLowerCase();
   const resolved = Object.entries(knownEntities).reduce<Record<string, string[]>>(
     (acc, [key, values]) => {
-      const matches = values.filter((value) => lower.includes(value.toLowerCase()));
+      const matches = values.filter((value) => includesEntity(lower, value));
       if (matches.length) acc[key] = matches;
       return acc;
     },
@@ -35,7 +63,8 @@ export function flattenResolvedEntities(entities: Record<string, string[]>) {
 }
 
 export function inferQueryForAgent(role: AgentRole, task: string) {
-  if (role === "sales_outreach") return `${task} approved sales template ICP value proposition case study lead profile`;
-  if (role === "teftero") return `${task} customer incoming invoice overdue payment terms ERP process task`;
-  return `${task} checkout support customer safe support issue customer record escalation task`;
+  if (role === "invoice_ops") {
+    return `${task} notion invoice customer email invoice status month amount due date payment template teftero erp google drive sop policy report`;
+  }
+  return task;
 }

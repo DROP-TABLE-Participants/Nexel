@@ -6,9 +6,9 @@ import type { AgentPolicy, Artifact, ConnectorName } from "@/lib/types";
 
 const connectorOptions: ConnectorName[] = [
   "gmail",
+  "notion",
   "google_drive",
   "teftero_erp",
-  "local_mock",
 ];
 
 const departmentOptions: Artifact["access"]["department"][] = [

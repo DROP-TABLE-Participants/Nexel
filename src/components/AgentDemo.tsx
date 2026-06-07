@@ -3,13 +3,12 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  BadgeCheck,
   Columns3,
-  FileAudio,
   Loader2,
   Mail,
-  Mic,
   Play,
-  Volume2,
+  Table2,
 } from "lucide-react";
 import type { AgentRole, AgentRun, DemoMode, Scenario } from "@/lib/types";
 
@@ -57,15 +56,23 @@ function sourceList(run: AgentRun) {
 
 function renderOutput(run: AgentRun) {
   const output = run.output;
-  type TaskLike = { title?: string; description?: string; priority?: string };
   const emailDraft = output.emailDraft as
     | { to?: string; subject?: string; body?: string }
     | undefined;
-  const customerReply = output.customerReply as
-    | { subject?: string; body?: string }
+  const invoiceStatusUpdate = output.invoiceStatusUpdate as
+    | { invoiceNumber?: string; status?: string; paidAt?: string }
     | undefined;
-  const erpTask = (output.erpTask as TaskLike | undefined) ??
-    (output.supportTicket as TaskLike | undefined);
+  const invoiceRows = Array.isArray(output.invoiceRows)
+    ? (output.invoiceRows as Array<{
+        invoiceNumber?: string;
+        customerName?: string;
+        customerEmail?: string;
+        dueDate?: string;
+        amount?: number;
+        currency?: string;
+        status?: string;
+      }>)
+    : [];
 
   return (
     <div className="space-y-4 text-sm text-slate-700">
@@ -80,29 +87,52 @@ function renderOutput(run: AgentRun) {
           <p className="mt-3 whitespace-pre-wrap leading-6">{emailDraft.body}</p>
         </div>
       ) : null}
-      {customerReply ? (
+      {invoiceStatusUpdate ? (
         <div className="rounded-lg border border-slate-200 bg-white p-4">
           <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase text-slate-500">
-            <Mail size={14} /> Customer reply
+            <BadgeCheck size={14} /> Invoice status
           </div>
-          <p className="font-medium text-slate-950">{customerReply.subject}</p>
-          <p className="mt-3 whitespace-pre-wrap leading-6">{customerReply.body}</p>
+          <p className="font-medium text-slate-950">
+            {invoiceStatusUpdate.invoiceNumber} {invoiceStatusUpdate.status}
+          </p>
+          {invoiceStatusUpdate.paidAt ? (
+            <p className="mt-2 text-xs text-slate-500">Paid at {invoiceStatusUpdate.paidAt}</p>
+          ) : null}
         </div>
       ) : null}
-      {erpTask ? (
+      {invoiceRows.length > 0 ? (
         <div className="rounded-lg border border-slate-200 bg-white p-4">
-          <p className="text-xs font-semibold uppercase text-slate-500">ERP task</p>
-          <p className="mt-2 font-medium text-slate-950">{erpTask.title}</p>
-          <p className="mt-2 leading-6">{erpTask.description}</p>
-          <p className="mt-2 text-xs text-slate-500">Priority: {erpTask.priority}</p>
-        </div>
-      ) : null}
-      {output.voiceResponseText ? (
-        <div className="rounded-lg border border-slate-200 bg-white p-4">
-          <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase text-slate-500">
-            <Volume2 size={14} /> Voice response
+          <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase text-slate-500">
+            <Table2 size={14} /> Invoice rows
           </div>
-          <p className="leading-6">{String(output.voiceResponseText)}</p>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[680px] border-collapse text-left text-xs">
+              <thead>
+                <tr className="border-b border-slate-200 text-slate-500">
+                  <th className="py-2 pr-3 font-semibold">Invoice</th>
+                  <th className="py-2 pr-3 font-semibold">Customer</th>
+                  <th className="py-2 pr-3 font-semibold">Email</th>
+                  <th className="py-2 pr-3 font-semibold">Due</th>
+                  <th className="py-2 pr-3 font-semibold">Amount</th>
+                  <th className="py-2 pr-3 font-semibold">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {invoiceRows.map((row) => (
+                  <tr key={row.invoiceNumber} className="border-b border-slate-100">
+                    <td className="py-2 pr-3 font-medium text-slate-950">{row.invoiceNumber}</td>
+                    <td className="py-2 pr-3">{row.customerName}</td>
+                    <td className="py-2 pr-3">{row.customerEmail}</td>
+                    <td className="py-2 pr-3">{row.dueDate}</td>
+                    <td className="py-2 pr-3">
+                      {row.amount} {row.currency}
+                    </td>
+                    <td className="py-2 pr-3">{row.status}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       ) : null}
     </div>
@@ -163,6 +193,11 @@ function RunColumn({ title, run }: { title: string; run?: AgentRun }) {
       <div className="mt-5">
         <p className="text-xs font-semibold uppercase text-slate-500">Action log</p>
         <div className="mt-2 space-y-2">
+          {run.actions.length === 0 ? (
+            <div className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-500">
+              No actions requested
+            </div>
+          ) : null}
           {run.actions.map((action) => (
             <div
               key={`${action.tool}-${JSON.stringify(action.output)}`}
@@ -186,15 +221,10 @@ export function AgentDemo({
   initialCompare = false,
 }: AgentDemoProps) {
   const [task, setTask] = useState(defaultTask);
-  const [loading, setLoading] = useState<DemoMode | "compare" | "voice" | null>(null);
+  const [loading, setLoading] = useState<DemoMode | "compare" | null>(null);
   const [naiveRun, setNaiveRun] = useState<AgentRun | undefined>();
   const [brainRun, setBrainRun] = useState<AgentRun | undefined>();
   const [scenario, setScenario] = useState<Scenario | undefined>();
-  const [mockText, setMockText] = useState(
-    "Hi, checkout is failing for our EU users. Can you help?",
-  );
-  const [transcript, setTranscript] = useState("");
-  const [audioFile, setAudioFile] = useState<File | null>(null);
   const hasAutoRun = useRef(false);
 
   const summary = useMemo(() => {
@@ -240,24 +270,6 @@ export function AgentDemo({
       setTask(result.scenario.task);
       setNaiveRun(result.naive);
       setBrainRun(result.companyBrain);
-    } finally {
-      setLoading(null);
-    }
-  }
-
-  async function transcribe() {
-    setLoading("voice");
-    try {
-      const formData = new FormData();
-      formData.append("mockText", mockText);
-      if (audioFile) formData.append("audio", audioFile);
-      const response = await fetch("/api/voice/transcribe", {
-        method: "POST",
-        body: formData,
-      });
-      const result = (await response.json()) as { transcript: string };
-      setTranscript(result.transcript);
-      setTask(`Customer Acme says by voice: "${result.transcript}"`);
     } finally {
       setLoading(null);
     }
@@ -337,42 +349,6 @@ export function AgentDemo({
           ) : null}
         </aside>
       </section>
-
-      {agentRole === "voice_support" ? (
-        <section className="rounded-lg border border-slate-200 bg-white p-5">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="text-sm font-semibold text-slate-950">Voice flow</p>
-              <p className="mt-1 text-sm text-slate-600">{transcript || "Mock transcript ready"}</p>
-            </div>
-            <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
-              <FileAudio size={16} />
-              Audio file
-              <input
-                type="file"
-                accept="audio/*"
-                className="sr-only"
-                onChange={(event) => setAudioFile(event.target.files?.[0] ?? null)}
-              />
-            </label>
-          </div>
-          <div className="mt-4 grid gap-3 md:grid-cols-[1fr_auto]">
-            <input
-              value={mockText}
-              onChange={(event) => setMockText(event.target.value)}
-              className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none focus:border-teal-600"
-            />
-            <button
-              onClick={transcribe}
-              disabled={Boolean(loading)}
-              className="inline-flex items-center justify-center gap-2 rounded-md bg-slate-950 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-60"
-            >
-              {loading === "voice" ? <Loader2 size={16} className="animate-spin" /> : <Mic size={16} />}
-              Transcribe
-            </button>
-          </div>
-        </section>
-      ) : null}
 
       <div className="grid gap-5 xl:grid-cols-2">
         <RunColumn title="Baseline run" run={naiveRun} />

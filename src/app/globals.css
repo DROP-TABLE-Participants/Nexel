@@ -1,8 +1,45 @@
 @import "tailwindcss";
+@plugin "tailwindcss-animate";
 
 :root {
-  --background: #f6f8f7;
-  --foreground: #0f172a;
+  --background: #fafafa;
+  --foreground: #18181b;
+  --card: #ffffff;
+  --card-foreground: #18181b;
+  --border: #e4e4e7;
+  --input: #e4e4e7;
+  --primary: #6338fe;
+  --primary-foreground: #ffffff;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+  --accent: #6338fe;
+  --accent-foreground: #ffffff;
+  --sidebar: #ffffff;
+  --sidebar-border: #e4e4e7;
+  --sidebar-foreground: #18181b;
+  --sidebar-muted: #71717a;
+  --destructive: #ef4444;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: #09090b;
+  --foreground: #fafafa;
+  --card: #18181b;
+  --card-foreground: #fafafa;
+  --border: #27272a;
+  --input: #27272a;
+  --primary: #6338fe;
+  --primary-foreground: #ffffff;
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
+  --accent: #6338fe;
+  --accent-foreground: #ffffff;
+  --sidebar: #111113;
+  --sidebar-border: #27272a;
+  --sidebar-foreground: #fafafa;
+  --sidebar-muted: #a1a1aa;
+  --destructive: #ef4444;
 }
 
 @theme inline {
@@ -12,15 +49,25 @@
   --font-mono: var(--font-geist-mono);
 }
 
+* {
+  border-color: var(--border);
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-button,
-a,
-input,
-textarea {
-  letter-spacing: 0;
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
 }

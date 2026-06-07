@@ -1,22 +1,70 @@
 [
   {
-    "id": "erp:invoice_inv_1007",
-    "invoiceNumber": "INV-1007",
-    "customer": "Acme",
+    "id": "erp:invoice_inv_2026_0503",
+    "invoiceNumber": "INV-2026-0503",
+    "customer": "Acme Labs",
     "amount": 4200,
-    "currency": "EUR",
-    "status": "overdue",
-    "daysOverdue": 12,
-    "allowedAgents": ["teftero"]
+    "currency": "USD",
+    "status": "unpaid",
+    "month": "2026-05",
+    "dueDate": "2026-05-15",
+    "daysOverdue": 23
   },
   {
-    "id": "erp:invoice_other_customer_2002",
-    "invoiceNumber": "INV-2002",
-    "customer": "BetaCo",
-    "amount": 9000,
-    "currency": "EUR",
-    "status": "overdue",
-    "daysOverdue": 28,
-    "allowedAgents": ["teftero"]
+    "id": "erp:invoice_inv_2026_0507",
+    "invoiceNumber": "INV-2026-0507",
+    "customer": "Northstar Retail",
+    "amount": 1850,
+    "currency": "USD",
+    "status": "unpaid",
+    "month": "2026-05",
+    "dueDate": "2026-05-20",
+    "daysOverdue": 18
+  },
+  {
+    "id": "erp:invoice_inv_2026_0511",
+    "invoiceNumber": "INV-2026-0511",
+    "customer": "Bluebird Health",
+    "amount": 990,
+    "currency": "USD",
+    "status": "unpaid",
+    "month": "2026-05",
+    "dueDate": "2026-05-25",
+    "daysOverdue": 13
+  },
+  {
+    "id": "erp:invoice_inv_2026_0501_paid",
+    "invoiceNumber": "INV-2026-0501",
+    "customer": "Orion Systems",
+    "amount": 3100,
+    "currency": "USD",
+    "status": "paid",
+    "month": "2026-05",
+    "dueDate": "2026-05-14",
+    "daysOverdue": 0,
+    "paymentReceivedAt": "2026-05-16T10:30:00.000Z"
+  },
+  {
+    "id": "erp:invoice_inv_2026_0419",
+    "invoiceNumber": "INV-2026-0419",
+    "customer": "Laguna Services",
+    "amount": 2750,
+    "currency": "USD",
+    "status": "payment_received",
+    "month": "2026-04",
+    "dueDate": "2026-05-03",
+    "daysOverdue": 0,
+    "paymentReceivedAt": "2026-06-01T12:15:00.000Z"
+  },
+  {
+    "id": "erp:invoice_inv_2026_0602",
+    "invoiceNumber": "INV-2026-0602",
+    "customer": "Meridian Foods",
+    "amount": 2250,
+    "currency": "USD",
+    "status": "unpaid",
+    "month": "2026-06",
+    "dueDate": "2026-06-17",
+    "daysOverdue": 0
   }
 ]

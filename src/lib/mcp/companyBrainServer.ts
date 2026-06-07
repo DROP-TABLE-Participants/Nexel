@@ -5,6 +5,7 @@ import { contextToPrompt } from "@/lib/agents/helpers";
 import { getContextPack } from "@/lib/companyBrain/contextPackBuilder";
 import { getNaiveContext } from "@/lib/companyBrain/naiveRetriever";
 import { estimateTokens } from "@/lib/companyBrain/scoring";
+import { getNotionAdapter } from "@/lib/connectors/notion";
 import {
   getEffectivePolicy,
   listAgentPermissions,
@@ -25,9 +26,10 @@ import type {
   RunMetrics,
 } from "@/lib/types";
 
-const agentRoleSchema = z.enum(["sales_outreach", "teftero", "voice_support"]);
+const agentRoleSchema = z.enum(["invoice_ops"]);
 const modeSchema = z.enum(["naive", "company_brain"]);
-const connectorSchema = z.enum(["gmail", "google_drive", "teftero_erp", "local_mock"]);
+const responseFormatSchema = z.enum(["evidence", "invoice_rows"]);
+const connectorSchema = z.enum(["gmail", "notion", "google_drive", "teftero_erp"]);
 const departmentSchema = z.enum([
   "sales",
   "support",
@@ -45,11 +47,14 @@ const sensitivitySchema = z.enum([
 ]);
 const sourceTypeSchema = z.enum([
   "email",
+  "notion_invoice",
+  "notion_customer",
+  "notion_payment",
+  "notion_template",
   "drive_doc",
   "erp_customer",
   "erp_invoice",
   "erp_task",
-  "voice_transcript",
   "policy",
   "template",
   "restricted_doc",
@@ -91,29 +96,13 @@ function compactDraft(value: unknown) {
   });
 }
 
-function compactTask(value: unknown) {
-  const task = objectValue(value);
-  return definedRecord({
-    t: task.title,
-    d: task.description,
-    p: task.priority,
-  });
-}
-
 function compactAgentOutput(output: Record<string, unknown>) {
   const compact: Record<string, unknown> = {};
 
   if (output.summary) compact.s = output.summary;
-  if (output.transcript) compact.tr = output.transcript;
-  if (output.classification) compact.cls = output.classification;
-  if (output.recommendedAction) compact.rec = output.recommendedAction;
-  if (output.crmNote) compact.crm = output.crmNote;
-  if (output.followUpTask) compact.fu = output.followUpTask;
   if (output.emailDraft) compact.e = compactDraft(output.emailDraft);
-  if (output.replyDraft) compact.reply = compactDraft(output.replyDraft);
-  if (output.erpTask) compact.task = compactTask(output.erpTask);
-  if (output.voiceResponseText) compact.voice = output.voiceResponseText;
-  if (output.findings) compact.f = output.findings;
+  if (output.invoiceStatusUpdate) compact.upd = output.invoiceStatusUpdate;
+  if (output.invoiceRows) compact.rows = output.invoiceRows;
   if (output.usedSources) compact.src = output.usedSources;
   if (output.confidence) compact.conf = output.confidence;
 
@@ -170,6 +159,41 @@ function scopedContextText(pack: EvidencePack, telemetry?: McpCallTelemetry) {
   return `MCP TSON keys: m=mode, ctx={f[{c,s}],src,act,miss}, b=blocked source count, tel=telemetry.\n${toTsonText(
     compact,
     "compact scoped MCP context JSON",
+  )}`;
+}
+
+function invoiceRowsText(
+  output: Record<string, unknown>,
+  telemetry?: McpCallTelemetry,
+) {
+  const compact: Record<string, unknown> = {
+    m: output.mode,
+    fmt: "invoice_rows",
+    f: output.filters,
+    rows: Array.isArray(output.rows)
+      ? output.rows.map((row) => {
+          const item = row as Record<string, unknown>;
+          return {
+            inv: item.invoiceNumber,
+            c: item.customerName,
+            email: item.customerEmail,
+            due: item.dueDate,
+            amt: item.amount,
+            cur: item.currency,
+            st: item.status,
+          };
+        })
+      : [],
+    src: Array.isArray(output.sources)
+      ? output.sources.map((source) => (source as { id?: unknown }).id)
+      : [],
+    b: output.blockedSourceCount,
+  };
+  if (telemetry) compact.tel = compactTelemetry(telemetry);
+
+  return `ROWS TSON keys: m=mode, fmt=response format, f=filters, rows[{inv,c,email,due,amt,cur,st}], src=source ids, b=blocked count.\n${toTsonText(
+    compact,
+    "compact invoice rows MCP JSON",
   )}`;
 }
 
@@ -288,6 +312,9 @@ export function createCompanyBrainMcpServer() {
         task: z.string().min(1).describe("The end-user task or question."),
         query: z.string().optional().describe("Optional retrieval query override."),
         mode: modeSchema.default("company_brain"),
+        responseFormat: responseFormatSchema
+          .default("evidence")
+          .describe("Return evidence context or scoped invoice rows."),
         clientName: z
           .string()
           .optional()
@@ -298,8 +325,77 @@ export function createCompanyBrainMcpServer() {
           .describe("Include full call telemetry in the tool response. Persisted telemetry is always recorded."),
       },
     },
-    async ({ agentRole, task, query, mode, clientName, includeTelemetry }) => {
-      const request = { agentRole, task, query, mode, clientName, includeTelemetry };
+    async ({ agentRole, task, query, mode, responseFormat, clientName, includeTelemetry }) => {
+      const request = {
+        agentRole,
+        task,
+        query,
+        mode,
+        responseFormat,
+        clientName,
+        includeTelemetry,
+      };
+
+      if (responseFormat === "invoice_rows") {
+        const [pack, naive, rows] = await Promise.all([
+          getContextPack({
+            agentRole,
+            task,
+            query: query || task,
+            entities: { months: ["2026-05", "May 2026"] },
+          }),
+          getNaiveContext({
+            agentRole,
+            task,
+            query: query || task,
+            topK: 20,
+          }),
+          getNotionAdapter().listInvoiceRows({
+            month: "2026-05",
+            status: "unpaid",
+          }),
+        ]);
+        const sources = pack.sources.map((source) => ({
+          id: source.id,
+          title: source.title,
+          connector: source.connector,
+          sourceType: source.sourceType,
+          relevance: source.relevance,
+        }));
+        const output = {
+          mode,
+          responseFormat,
+          filters: {
+            month: "2026-05",
+            status: "unpaid",
+          },
+          rows,
+          rowCount: rows.length,
+          sources,
+          blockedSourceCount: pack.blockedSources.length,
+        };
+        const contentText = invoiceRowsText(output);
+        const telemetry = await recordContextTelemetry({
+          toolName: "get_company_context",
+          clientName: clientName || "unknown_mcp_client",
+          agentRole,
+          mode,
+          task,
+          request,
+          output,
+          totalTokens: estimateTokens(contentText),
+          baselineTokens: estimateTokens(naive.contextText),
+          dataUsed: dataUsageFromEvidencePack(pack),
+          blockedSources: pack.blockedSources,
+        });
+        const response = includeTelemetry
+          ? { ...output, telemetry: redactTelemetryForClient(telemetry) }
+          : output;
+        return jsonToolResult(
+          response,
+          invoiceRowsText(output, includeTelemetry ? telemetry : undefined),
+        );
+      }
 
       if (mode === "naive") {
         const naive = await getNaiveContext({

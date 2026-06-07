@@ -71,7 +71,7 @@ class MockGmailAdapter implements GmailAdapter {
       },
       metadata: { mocked: true },
       access: {
-        allowedAgents: ["sales_outreach", "voice_support"],
+        allowedAgents: ["invoice_ops"],
         sensitivity: "customer_safe",
         department: "general",
       },
