@@ -284,7 +284,7 @@ export function AgentDemo({
       <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div>
           <p className="text-sm font-semibold uppercase text-[var(--primary)]">{displayName}</p>
-          <h1 className="mt-2 text-3xl font-semibold text-[var(--foreground)]">{displayName} demo</h1>
+          <h1 className="mt-2 text-2xl font-semibold text-[var(--foreground)] sm:text-3xl">{displayName} demo</h1>
           <textarea
             value={task}
             onChange={(event) => setTask(event.target.value)}
@@ -295,6 +295,7 @@ export function AgentDemo({
               onClick={() => runMode("naive")}
               disabled={Boolean(loading)}
               variant="outline"
+              className="w-full sm:w-auto"
             >
               {loading === "naive" ? <Loader2 size={16} className="animate-spin" /> : <Play size={16} />}
               Without middleware
@@ -302,6 +303,7 @@ export function AgentDemo({
             <Button
               onClick={() => runMode("company_brain")}
               disabled={Boolean(loading)}
+              className="w-full sm:w-auto"
             >
               {loading === "company_brain" ? <Loader2 size={16} className="animate-spin" /> : <Play size={16} />}
               With Company Brain
@@ -310,6 +312,7 @@ export function AgentDemo({
               onClick={runComparison}
               disabled={Boolean(loading)}
               variant="secondary"
+              className="w-full sm:w-auto"
             >
               {loading === "compare" ? <Loader2 size={16} className="animate-spin" /> : <Columns3 size={16} />}
               Run Comparison
@@ -321,7 +324,7 @@ export function AgentDemo({
           <p className="text-sm font-semibold text-[var(--foreground)]">Selected scenario</p>
           <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">{scenario?.title ?? scenarioId}</p>
           {summary ? (
-            <div className="mt-5 grid grid-cols-2 gap-2">
+            <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2">
               <div className="rounded-md border border-[var(--border)] bg-[var(--muted)]/45 p-3">
                 <p className="text-xs text-[var(--muted-foreground)]">Token reduction</p>
                 <p className="mt-1 text-lg font-semibold text-[var(--foreground)]">{summary.tokenReduction}</p>

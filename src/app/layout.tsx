@@ -16,9 +16,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <body className={`${geist.variable} antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-          <div className="flex h-screen overflow-hidden bg-[var(--background)]">
+          <div className="min-h-screen bg-[var(--background)] md:flex md:h-screen md:overflow-hidden">
             <Sidebar />
-            <main className="flex-1 overflow-y-auto">
+            <main className="min-w-0 flex-1 pb-20 md:overflow-y-auto md:pb-0">
               {children}
             </main>
           </div>

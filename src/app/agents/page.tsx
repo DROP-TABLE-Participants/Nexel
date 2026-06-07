@@ -35,7 +35,7 @@ export default function AgentsPage() {
   const activeCount = AGENTS.filter((agent) => agent.status === "healthy").length;
 
   return (
-    <div className="flex flex-col gap-8 p-8">
+    <div className="flex flex-col gap-6 p-4 sm:p-6 md:gap-8 md:p-8">
       <div>
         <h1 className="text-xl font-semibold tracking-tight text-[var(--foreground)]">Agents</h1>
         <p className="mt-1 text-sm text-[var(--muted-foreground)]">
@@ -44,7 +44,7 @@ export default function AgentsPage() {
       </div>
 
       <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] overflow-hidden">
-        <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr] gap-4 px-5 py-3 border-b border-[var(--border)] bg-[var(--muted)]/40">
+        <div className="hidden grid-cols-[2fr_1fr_1fr_1fr_1fr] gap-4 border-b border-[var(--border)] bg-[var(--muted)]/40 px-5 py-3 sm:grid">
           {["Agent", "Status", "Tokens", "Cost", "Saved"].map((h) => (
             <span key={h} className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wide">{h}</span>
           ))}
@@ -57,7 +57,7 @@ export default function AgentsPage() {
               key={agent.id}
               href={`/agents/${agent.id}`}
               className={cn(
-                "grid grid-cols-[2fr_1fr_1fr_1fr_1fr] gap-4 items-center px-5 py-4 hover:bg-[var(--muted)]/40 transition-colors",
+                "flex flex-col gap-3 px-4 py-4 transition-colors hover:bg-[var(--muted)]/40 sm:grid sm:grid-cols-[2fr_1fr_1fr_1fr_1fr] sm:items-center sm:gap-4 sm:px-5",
                 i < AGENTS.length - 1 && "border-b border-[var(--border)]"
               )}
             >
@@ -74,9 +74,18 @@ export default function AgentsPage() {
                 {status.label}
               </Badge>
 
-              <p className="text-sm text-[var(--foreground)]">{agent.tokens}</p>
-              <p className="text-sm text-[var(--foreground)]">{agent.cost}</p>
-              <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">{agent.saved}</p>
+              <p className="flex items-center justify-between gap-3 text-sm text-[var(--foreground)] sm:block">
+                <span className="text-xs text-[var(--muted-foreground)] sm:hidden">Tokens</span>
+                {agent.tokens}
+              </p>
+              <p className="flex items-center justify-between gap-3 text-sm text-[var(--foreground)] sm:block">
+                <span className="text-xs text-[var(--muted-foreground)] sm:hidden">Cost</span>
+                {agent.cost}
+              </p>
+              <p className="flex items-center justify-between gap-3 text-sm font-medium text-emerald-600 dark:text-emerald-400 sm:block">
+                <span className="text-xs font-normal text-[var(--muted-foreground)] sm:hidden">Saved</span>
+                {agent.saved}
+              </p>
             </Link>
           );
         })}

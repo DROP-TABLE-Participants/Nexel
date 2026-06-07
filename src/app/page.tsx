@@ -40,13 +40,13 @@ export default async function HomePage() {
   const moneySaved = dashboard.demoMoneySavedUsd + mcp.totalMoneySavedUsd;
 
   return (
-    <div className="flex flex-col gap-8 p-8">
+    <div className="flex flex-col gap-6 p-4 sm:p-6 md:gap-8 md:p-8">
       <div>
         <h1 className="text-xl font-semibold tracking-tight text-[var(--foreground)]">Home</h1>
         <p className="mt-1 text-sm text-[var(--muted-foreground)]">June 2026 · All systems overview</p>
       </div>
 
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard
           title="Tokens consumed"
           value={compactNumber(tokensConsumed || 98_500_000)}

@@ -24,14 +24,14 @@ export function TokenChart() {
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <CardTitle>Token usage</CardTitle>
           <span className="text-xs text-[var(--muted-foreground)] bg-[var(--muted)] px-2 py-1 rounded-md">June 2026</span>
         </div>
-        <div className="flex items-baseline gap-2 pt-1">
+        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 pt-1">
           <span className="text-2xl font-semibold tracking-tight text-[var(--foreground)]">98.5M</span>
           <span className="text-sm text-[var(--muted-foreground)]">tokens this month</span>
-          <span className="ml-auto text-sm font-medium text-emerald-600 dark:text-emerald-400">↑ 34% vs last month</span>
+          <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400 sm:ml-auto">↑ 34% vs last month</span>
         </div>
       </CardHeader>
       <CardContent className="pt-2">

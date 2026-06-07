@@ -182,7 +182,7 @@ export default function AgentDetailPage({ params }: { params: Promise<{ id: stri
   ).toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 
   return (
-    <div className="p-8 space-y-6 max-w-4xl">
+    <div className="max-w-4xl space-y-6 p-4 sm:p-6 md:p-8">
       {/* Back */}
       <Button variant="ghost" size="sm" asChild>
         <Link href="/agents" className="gap-1.5">
@@ -192,12 +192,12 @@ export default function AgentDetailPage({ params }: { params: Promise<{ id: stri
       </Button>
 
       {/* Header */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-start gap-4 sm:items-center">
         <div className="flex h-12 w-12 items-center justify-center rounded-xl flex-shrink-0" style={{ backgroundColor: `${color}18` }}>
           <Icon style={{ color, fontSize: 22 }} />
         </div>
         <div className="flex-1">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <h1 className="text-xl font-semibold text-[var(--foreground)]">{agent.name}</h1>
             <Badge variant={status.variant} className="gap-1.5">
               <span className={cn("h-1.5 w-1.5 rounded-full", status.dot)} />
@@ -211,7 +211,7 @@ export default function AgentDetailPage({ params }: { params: Promise<{ id: stri
       <Separator />
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatBox label="Tokens used"    value={agent.tokens}    icon={Zap}         />
         <StatBox label="Cost this month" value={agent.cost}     icon={DollarSign}  />
         <StatBox label="Data units"      value={agent.dataUnits} icon={Database}   />
@@ -233,7 +233,7 @@ export default function AgentDetailPage({ params }: { params: Promise<{ id: stri
         <p className="text-sm font-semibold text-[var(--foreground)]">Cost comparison</p>
         <div className="space-y-2.5">
           <div className="space-y-1">
-            <div className="flex items-center justify-between text-xs">
+            <div className="flex items-center justify-between gap-3 text-xs">
               <span className="text-[var(--muted-foreground)]">Without Nexel</span>
               <span className="font-medium text-[var(--muted-foreground)]">{withoutNexel}</span>
             </div>
@@ -242,7 +242,7 @@ export default function AgentDetailPage({ params }: { params: Promise<{ id: stri
             </div>
           </div>
           <div className="space-y-1">
-            <div className="flex items-center justify-between text-xs">
+            <div className="flex items-center justify-between gap-3 text-xs">
               <span className="font-medium text-[var(--foreground)]">With Nexel</span>
               <span className="font-semibold text-[var(--primary)]">{agent.cost}</span>
             </div>
@@ -262,7 +262,7 @@ export default function AgentDetailPage({ params }: { params: Promise<{ id: stri
         className="rounded-xl border border-[var(--border)] bg-[var(--card)] overflow-hidden cursor-pointer"
         onClick={() => setContextExpanded((v) => !v)}
       >
-        <div className="flex items-center justify-between p-5 pb-3">
+        <div className="flex items-start justify-between gap-4 p-5 pb-3 sm:items-center">
           <div>
             <p className="text-sm font-semibold text-[var(--foreground)]">Context allocation</p>
             <p className="text-xs text-[var(--muted-foreground)] mt-0.5">
@@ -302,7 +302,7 @@ export default function AgentDetailPage({ params }: { params: Promise<{ id: stri
           {ALL_SOURCES.map((src) => {
             const si = SOURCE_ICONS[src.id];
             return (
-            <div key={src.id} className="flex items-center justify-between py-2 border-b border-[var(--border)] last:border-0">
+            <div key={src.id} className="flex items-center justify-between gap-4 py-2 border-b border-[var(--border)] last:border-0">
               <div className="flex items-center gap-3">
                 {si && (
                   <div className="flex h-7 w-7 items-center justify-center rounded-md flex-shrink-0" style={{ backgroundColor: `${si.color}18` }}>

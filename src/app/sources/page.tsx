@@ -271,7 +271,7 @@ function AddConnectorModal() {
   );
 
   return (
-    <DialogContent className="max-w-[520px]">
+    <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-[520px]">
       <DialogHeader>
         <DialogTitle>Add data source</DialogTitle>
         <p className="text-sm text-[var(--muted-foreground)]">Connect a new data source to your Nexel layer.</p>
@@ -300,8 +300,8 @@ export default function SourcesPage() {
   const [selected, setSelected] = useState<Connector | null>(null);
 
   return (
-    <div className="flex flex-col gap-8 p-8">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col gap-6 p-4 sm:p-6 md:gap-8 md:p-8">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-xl font-semibold tracking-tight text-[var(--foreground)]">Data Sources</h1>
           <p className="mt-1 text-sm text-[var(--muted-foreground)]">
@@ -320,7 +320,7 @@ export default function SourcesPage() {
       </div>
 
       <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] overflow-hidden">
-        <div className="grid grid-cols-[2fr_1fr_1fr_1fr_auto] gap-4 px-5 py-3 border-b border-[var(--border)] bg-[var(--muted)]/40">
+        <div className="hidden grid-cols-[2fr_1fr_1fr_1fr_auto] gap-4 border-b border-[var(--border)] bg-[var(--muted)]/40 px-5 py-3 sm:grid">
           <span className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wide">Source</span>
           <span className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wide">Status</span>
           <span className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wide">Last sync</span>
@@ -335,7 +335,7 @@ export default function SourcesPage() {
               key={connector.id}
               onClick={() => setSelected(connector)}
               className={cn(
-                "grid grid-cols-[2fr_1fr_1fr_1fr_auto] gap-4 items-center px-5 py-4 hover:bg-[var(--muted)]/40 transition-colors cursor-pointer",
+                "flex cursor-pointer flex-col gap-3 px-4 py-4 transition-colors hover:bg-[var(--muted)]/40 sm:grid sm:grid-cols-[2fr_1fr_1fr_1fr_auto] sm:items-center sm:gap-4 sm:px-5",
                 i < connectors.length - 1 && "border-b border-[var(--border)]"
               )}
             >
@@ -347,19 +347,26 @@ export default function SourcesPage() {
                 </div>
               </div>
 
-              <div>
+              <div className="flex items-center justify-between gap-3 sm:block">
+                <span className="text-xs text-[var(--muted-foreground)] sm:hidden">Status</span>
                 <Badge variant={status.variant} className="gap-1.5">
                   <span className={cn("h-1.5 w-1.5 rounded-full flex-shrink-0", status.dot)} />
                   {status.label}
                 </Badge>
               </div>
 
-              <div className="flex items-center gap-1.5 text-sm text-[var(--muted-foreground)]">
-                <RefreshCw className="h-3.5 w-3.5" />
-                {connector.lastSync}
+              <div className="flex items-center justify-between gap-3 text-sm text-[var(--muted-foreground)] sm:justify-start sm:gap-1.5">
+                <span className="text-xs sm:hidden">Last sync</span>
+                <span className="flex items-center gap-1.5">
+                  <RefreshCw className="h-3.5 w-3.5" />
+                  {connector.lastSync}
+                </span>
               </div>
 
-              <p className="text-sm text-[var(--muted-foreground)]">{connector.records}</p>
+              <p className="flex items-center justify-between gap-3 text-sm text-[var(--muted-foreground)] sm:block">
+                <span className="text-xs sm:hidden">Records</span>
+                {connector.records}
+              </p>
 
               <button
                 onClick={(e) => { e.stopPropagation(); setSelected(connector); }}

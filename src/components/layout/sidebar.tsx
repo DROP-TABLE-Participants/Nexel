@@ -18,14 +18,37 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="flex h-screen w-[220px] flex-col border-r border-[var(--sidebar-border)] bg-[var(--sidebar)] flex-shrink-0">
-      <div className="flex h-14 items-center px-4">
-        <NexelLogo />
-      </div>
+    <>
+      <aside className="hidden h-screen w-[220px] flex-shrink-0 flex-col border-r border-[var(--sidebar-border)] bg-[var(--sidebar)] md:flex">
+        <div className="flex h-14 items-center px-4">
+          <NexelLogo />
+        </div>
 
-      <Separator />
+        <Separator />
 
-      <nav className="flex flex-col gap-0.5 p-2 flex-1">
+        <nav className="flex flex-1 flex-col gap-0.5 p-2">
+          {navItems.map(({ href, label, icon: Icon }) => {
+            const active = href === "/" ? pathname === href : pathname.startsWith(href);
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={cn(
+                  "flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors",
+                  active
+                    ? "bg-[var(--primary)]/10 text-[var(--primary)] font-medium"
+                    : "text-[var(--sidebar-muted)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+                )}
+              >
+                <Icon className="h-4 w-4 flex-shrink-0" />
+                {label}
+              </Link>
+            );
+          })}
+        </nav>
+      </aside>
+
+      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-[var(--sidebar-border)] bg-[var(--sidebar)]/95 px-2 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 backdrop-blur md:hidden">
         {navItems.map(({ href, label, icon: Icon }) => {
           const active = href === "/" ? pathname === href : pathname.startsWith(href);
           return (
@@ -33,18 +56,18 @@ export function Sidebar() {
               key={href}
               href={href}
               className={cn(
-                "flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors",
+                "flex min-h-12 flex-col items-center justify-center gap-1 rounded-md px-1 text-[11px] leading-none transition-colors",
                 active
                   ? "bg-[var(--primary)]/10 text-[var(--primary)] font-medium"
                   : "text-[var(--sidebar-muted)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
               )}
             >
-              <Icon className="h-4 w-4 flex-shrink-0" />
-              {label}
+              <Icon className="h-4 w-4" />
+              <span className="max-w-full truncate">{label}</span>
             </Link>
           );
         })}
       </nav>
-    </aside>
+    </>
   );
 }
