@@ -113,6 +113,23 @@ docker compose up --build
 
 The app container runs `node scripts/migrate-db.mjs` before starting the standalone Next server. The Postgres data volume is `pgdata`.
 
+## GitOps Deployment
+
+Production deploys from the `main` branch through `.github/workflows/nexel-deploy.yml`.
+
+The workflow builds and pushes:
+
+- `gluckit/nexel:prod-YYYYMMDD-HHMM-SHORTSHA`
+- `gluckit/nexel:prod-latest`
+
+It then updates `DROP-TABLE-Participants/Nexel.Deployment` at `k8s/nexel/prod/nexel/deployment.yaml` so Argo CD can sync the immutable image tag.
+
+Required GitHub secrets:
+
+- `DOCKER_USERNAME`
+- `DOCKER_PASSWORD`
+- `PERSONAL_ACCESS_TOKEN`
+
 ## Token Optimization Check
 
 Run the TSON prompt savings check:
